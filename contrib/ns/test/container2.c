@@ -79,19 +79,20 @@ childFunc(void *arg)
     //         exit(-1);
     // }
 
-    if (mount("proc", "/proc", "proc", 0, "") != 0) {
-            fprintf(stderr, "failed mount /proc %s\n",
-                    strerror(errno));
-            exit(-1);
-    }
+    // if (mount("proc", "/proc", "proc", 0, "") != 0) {
+    //         fprintf(stderr, "failed mount /proc %s\n",
+    //                 strerror(errno));
+    //         exit(-1);
+    // }
 
     printf("PID: %i\n", getpid());
-    for (int i = 0; i > -1; i++) {
-      printf("%i\n", i);
-      sleep(2);
-    }
+    // for (int i = 0; i > -1; i++) {
+    //   printf("%i\n", i);
+    //   sleep(2);
+    // }
 
-    // execvp(args->argv[0], args->argv);
+    char* args[] = { "bash" };
+    execvp("bash", args);
     // errExit("execvp");
 }
 
@@ -122,24 +123,24 @@ main(int argc, char *argv[])
     gid_map = NULL;
     uid_map = NULL;
     map_zero = 0;
-    while ((opt = getopt(argc, argv, "+imnpuUM:G:zv")) != -1) {
-        switch (opt) {
-        case 'i': flags |= CLONE_NEWIPC;        break;
-        case 'm': flags |= CLONE_NEWNS;         break;
-        case 'n': flags |= CLONE_NEWNET;        break;
-        case 'p': flags |= CLONE_NEWPID;        break;
-        case 'u': flags |= CLONE_NEWUTS;        break;
-        case 'v': verbose = 1;                  break;
-        case 'z': map_zero = 1;                 break;
-        case 'U': flags |= CLONE_NEWUSER;       break;
-        default:  usage(argv[0]);
-        }
-    }
+    // while ((opt = getopt(argc, argv, "+imnpuUM:G:zv")) != -1) {
+    //     switch (opt) {
+    //     case 'i': flags |= CLONE_NEWIPC;        break;
+    //     case 'm': flags |= CLONE_NEWNS;         break;
+    //     case 'n': flags |= CLONE_NEWNET;        break;
+    //     case 'p': flags |= CLONE_NEWPID;        break;
+    //     case 'u': flags |= CLONE_NEWUTS;        break;
+    //     case 'v': verbose = 1;                  break;
+    //     case 'z': map_zero = 1;                 break;
+    //     case 'U': flags |= CLONE_NEWUSER;       break;
+    //     default:  usage(argv[0]);
+    //     }
+    // }
 
     /* Create the child in new namespace(s) */
 
     child_pid = clone(childFunc, child_stack + STACK_SIZE,
-                      flags | SIGCHLD, NULL);
+                      flags | CLONE_NEWPID | SIGCHLD, NULL);
     if (child_pid == -1)
         errExit("clone");
 
