@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "dmtcp.h"
-
+#include "procselfcgroup.h"
 
 static void
 container_event_hook(DmtcpEvent_t event, DmtcpEventData_t *data)
@@ -22,6 +22,7 @@ static void
 checkpoint()
 {
   printf("\n*** The plugin is being called before checkpointing. ***\n");
+  read_cgroups();
 }
 
 static void

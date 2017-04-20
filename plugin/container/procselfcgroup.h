@@ -4,6 +4,7 @@
 #include "jalloc.h"
 #include "proccgroup.h"
 
+#ifdef __cplusplus
 namespace dmtcp
 {
 class ProcSelfCGroup
@@ -39,5 +40,8 @@ class ProcSelfCGroup
     int fd;
 };
 }
+extern "C"
+#endif // ifndef __cplusplus
+void read_cgroups();
 
 #endif // ifndef __DMTCP_PROCSELFCGROUP_H__
