@@ -51,14 +51,15 @@ typedef struct ProcCGroup {
   union {
     struct memory {
       ssize_t limit_in_bytes;
-      ssize_t memsw_limit_in_bytes;
-      ssize_t soft_limit_in_bytes;
-      int use_hierarchy;
-      int swappiness;
-      int move_charge_at_immigrate;
-      int oom_control;
-      ssize_t kmem_limit_in_bytes;
-      ssize_t kmem_tcp_limit_in_bytes;
+      // TODO(dan): Add the rest of these
+      // ssize_t memsw_limit_in_bytes;
+      // ssize_t soft_limit_in_bytes;
+      // int use_hierarchy;
+      // int swappiness;
+      // int move_charge_at_immigrate;
+      // int oom_control;
+      // ssize_t kmem_limit_in_bytes;
+      // ssize_t kmem_tcp_limit_in_bytes;
     };
   }
 
