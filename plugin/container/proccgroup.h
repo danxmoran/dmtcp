@@ -55,19 +55,7 @@ struct memory {
   // ssize_t kmem_tcp_limit_in_bytes;
 };
 
-typedef struct memory {
-  ssize_t limit_in_bytes;
-  ssize_t memsw_limit_in_bytes;
-  ssize_t soft_limit_in_bytes;
-  int use_hierarchy;
-  int swappiness;
-  int move_charge_at_immigrate;
-  int oom_control;
-  ssize_t kmem_limit_in_bytes;
-  ssize_t kmem_tcp_limit_in_bytes;
-} cgroup_memory;
-
-struct ProcCGroup {
+typedef struct ProcCGroup {
   CGroupSubsystem subsystem;
 
   // TODO(dan): Add ability to also track parameters of
