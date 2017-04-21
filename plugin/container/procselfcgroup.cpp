@@ -151,6 +151,7 @@ ProcSelfCGroup::readMemoryLimits(ProcCGroup *group)
   const char *prefix = "/sys/fs/cgroup/memory";
   size_t prefixLen = strlen(prefix);
   int tmp_fd;
+  ssize_t numRead;
 
   if (strcmp(group->name, "/") == 0) {
     group->memory.limit_in_bytes = -1;
@@ -158,20 +159,47 @@ ProcSelfCGroup::readMemoryLimits(ProcCGroup *group)
     size_t nameLen = strlen(group->name);
     strcpy(buf, prefix);
     strcpy(buf + prefixLen + 1, group->name);
+    strcpy(buf + prefixLen + nameLen + 2, "memory.");
+    printf("%s\n", buf);
 
     // Save limit-in-bytes.
-    strcpy(buf + prefixLen + nameLen + 2, "memory.limit_in_bytes");
-
+    strcpy(buf + prefixLen + nameLen + 9, "limit_in_bytes");
     if (access(buf, F_OK) != -1) {
       tmp_fd = open(buf, O_RDONLY);
       JASSERT(tmp_fd != -1) (JASSERT_ERRNO);
-      ssize_t numRead = read(tmp_fd,
-                             &group->memory.limit_in_bytes,
-                             sizeof(ssize_t));
+      numRead = read(tmp_fd, &group->memory.limit_in_bytes, sizeof(ssize_t));
       JASSERT(numRead > 0) (numRead);
       close(tmp_fd);
     } else {
       group->memory.limit_in_bytes = -1;
+    }
+
+    // Save limit with swap.
+    strcpy(buf + prefixLen + nameLen + 9, "memsw.limit_in_bytes");
+    if (access(buf, F_OK) != -1) {
+      tmp_fd = open(buf, O_RDONLY);
+      JASSERT(tmp_fd != -1) (JASSERT_ERRNO);
+      numRead = read(tmp_fd,
+                     &group->memory.memsw_limit_in_bytes,
+                     sizeof(ssize_t));
+      JASSERT(numRead > 0) (numRead);
+      close(tmp_fd);
+    } else {
+      group->memory.memsw_limit_in_bytes = -1;
+    }
+
+    // Save soft limit.
+    strcpy(buf + prefixLen + nameLen + 9, "soft_limit_in_bytes");
+    if (access(buf, F_OK) != -1) {
+      tmp_fd = open(buf, O_RDONLY);
+      JASSERT(tmp_fd != -1) (JASSERT_ERRNO);
+      numRead = read(tmp_fd,
+                     &group->memory.soft_limit_in_bytes,
+                     sizeof(ssize_t));
+      JASSERT(numRead > 0) (numRead);
+      close(tmp_fd);
+    } else {
+      group->memory.soft_limit_in_bytes = -1;
     }
   }
 }

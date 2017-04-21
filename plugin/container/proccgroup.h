@@ -44,9 +44,9 @@ enum CGroupSubsystem {
 
 struct memory {
   ssize_t limit_in_bytes;
-  // TODO(dan): Add the rest of these
-  // ssize_t memsw_limit_in_bytes;
-  // ssize_t soft_limit_in_bytes;
+  ssize_t memsw_limit_in_bytes;
+  ssize_t soft_limit_in_bytes;
+  // TODO(danm): Add the rest of these.
   // int use_hierarchy;
   // int swappiness;
   // int move_charge_at_immigrate;
