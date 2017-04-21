@@ -230,14 +230,3 @@ ProcSelfCGroup::getNextCGroup(ProcCGroup *group)
       JASSERT(0);
   }
 }
-
-extern "C" void read_cgroups();
-void read_cgroups()
-{
-  ProcSelfCGroup procSelfCGroup;
-  ProcCGroup *group = NULL;
-
-  while (procSelfCGroup.getNextCGroup(group)) {
-    printf("Reading: %s\n", group->name);
-  }
-}

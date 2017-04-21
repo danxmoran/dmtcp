@@ -2,6 +2,9 @@
 #include "dmtcp.h"
 #include "procselfcgroup.h"
 
+using namespace dmtcp;
+
+
 static void
 container_event_hook(DmtcpEvent_t event, DmtcpEventData_t *data)
 {
@@ -22,7 +25,12 @@ static void
 checkpoint()
 {
   printf("\n*** The plugin is being called before checkpointing. ***\n");
-  read_cgroups();
+  ProcSelfCGroup procSelfCGroup;
+  ProcCGroup *group = NULL;
+
+  while (procSelfCGroup.getNextCGroup(group)) {
+    printf("Reading: %s\n", group->name);
+  }
 }
 
 static void
