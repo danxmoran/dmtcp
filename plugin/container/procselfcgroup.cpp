@@ -30,7 +30,7 @@
 using namespace dmtcp;
 
 
-ProcCGroup::ProcCGroup()
+ProcSelfCGroup::ProcSelfCGroup()
   : dataIdx(0),
   numGroups(0),
   numBytes(0),
@@ -97,7 +97,7 @@ ProcSelfCGroup::readDec()
   while (1) {
     char c = data[dataIdx];
     if ((c >= '0') && (c <= '9')) {
-      c -= '0'
+      c -= '0';
     } else {
       break;
     }
@@ -133,7 +133,7 @@ ProcSelfCGroup::readName(char *buf, size_t bufSize)
   while (1) {
     JASSERT(i < bufSize);
 
-    char c = dta[dataIdx];
+    char c = buf[dataIdx];
     if (c == '\n') {
       break;
     }
@@ -176,6 +176,20 @@ ProcSelfCGroup::readMemoryLimits(ProcCGroup *group)
 }
 
 int
+ProcSelfCGroup::readPIDSLimits(ProcCGroup *group)
+{
+  std::string group_name = "drewtest";
+  std::string cgroup_path = "/sys/fs/cgroup/pids/" + group_name;
+  fd = _real_open((cgroup_path + "/notify_on_release").c_str(), O_RDONLY);
+  JASSERT(fd != -1) (JASSERT_ERRNO);
+  
+  int buf;
+  size_t numRead = Util::readAll(fd, &buf, sizeof(int));
+  printf("Read %i\n", buf);
+  return 0;
+}
+
+int
 ProcSelfCGroup::getNextCGroup(ProcCGroup *group)
 {
   if (dataIdx >= numBytes || data[dataIdx] == 0) {
@@ -195,6 +209,8 @@ ProcSelfCGroup::getNextCGroup(ProcCGroup *group)
 
   if (strcmp(buf, "memory") == 0) {
     group->subsystem = DMTCP_CGROUP_MEMORY;
+  } else if (strcmp(buf, "pids") == 0) {
+    group->subsystem = DMTCP_CGROUP_PIDS;
   } else {
     // TODO: Add other groups
     JASSERT(0);
@@ -207,7 +223,13 @@ ProcSelfCGroup::getNextCGroup(ProcCGroup *group)
   switch (group->subsystem) {
     case DMTCP_CGROUP_MEMORY:
       return readMemoryLimits(group);
+    case DMTCP_CGROUP_PIDS:
+      return readPIDSLimits(group); 
     default:
       JASSERT(0);
   }
+}
+
+int main() {
+  printf("INVOKED\n");
 }
