@@ -99,7 +99,7 @@ __d_libdir__libdmtcp_modify_env_so_LDADD = $(LDADD)
 #
 # # Ptrace plugin
 # #
-# 
+#
 # # FIXME:  ptrace plugin not yet working for aarch64
 # if !AARCH64_HOST
 # libdmtcp_PROGRAMS += $(d_libdir)/libdmtcp_ptrace.so
@@ -121,6 +121,18 @@ __d_libdir__libdmtcp_unique_ckpt_so_SOURCES =                          \
 	unique-ckpt/unique-ckpt.cpp
 __d_libdir__libdmtcp_unique_ckpt_so_LDFLAGS = $(dmtcp_ldflags)
 __d_libdir__libdmtcp_unique_ckpt_so_LDADD = $(LDADD)
+
+#
+# Container plugin
+#
+libdmtcp_PROGRAMS += $(d_libdir)/libdmtcp_container.so
+__d_libdir__libdmtcp_container_so_SOURCES =												\
+	container/container.cpp																					\
+	container/proccgroup.h																					\
+	container/procselfcgroup.cpp																		\
+	container/procselfcgroup.h
+__d_libdir__libdmtcp_container_so_LDFLAGS = $(dmtcp_ldflags)
+__d_libdir__libdmtcp_container_so_LDADD = $(LDADD)
 
 install-libs: install-libdmtcpPROGRAMS
 

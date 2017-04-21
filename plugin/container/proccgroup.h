@@ -26,7 +26,7 @@
 #define FILENAMESIZE 1024
 
 // TODO(dan) Add support for all of these.
-typedef enum CGroupSubsystem {
+enum CGroupSubsystem {
   // DMTCP_CGROUP_BLKIO,
   // DMTCP_CGROUP_CPU,
   // DMTCP_CGROUP_CPUACCT,
@@ -40,7 +40,20 @@ typedef enum CGroupSubsystem {
   // DMTCP_CGROUP_PERF_EVENT,
   DMTCP_CGROUP_PIDS,
   // DMTCP_CGROUP_NO_SUBSYSTEM // i.e. name=systemd cgroup
-} CGroupSubsystem;
+};
+
+struct memory {
+  ssize_t limit_in_bytes;
+  // TODO(dan): Add the rest of these
+  // ssize_t memsw_limit_in_bytes;
+  // ssize_t soft_limit_in_bytes;
+  // int use_hierarchy;
+  // int swappiness;
+  // int move_charge_at_immigrate;
+  // int oom_control;
+  // ssize_t kmem_limit_in_bytes;
+  // ssize_t kmem_tcp_limit_in_bytes;
+};
 
 typedef struct memory {
   ssize_t limit_in_bytes;
@@ -60,10 +73,10 @@ struct ProcCGroup {
   // TODO(dan): Add ability to also track parameters of
   // parent cgroups.
   union {
-    cgroup_memory mem;
+    struct memory memory;
   };
 
   char name[FILENAMESIZE];
-};
+} ProcCGroup;
 
 #endif // ifndef PROCCGROUP_H
