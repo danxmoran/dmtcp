@@ -20,12 +20,13 @@
  *  <http://www.gnu.org/licenses/>.                                         *
  ****************************************************************************/
 
-#include "procselfcgroup.h"
 #include <fcntl.h>
-#include "jassert.h"
-#include "syscallwrappers.h"
-#include "util.h"
-#include "string.h"
+#include <jassert.h>
+#include <util.h>
+#include <string.h>
+
+#include "proccgroup.h"
+#include "procselfcgroup.h"
 
 using namespace dmtcp;
 
@@ -38,7 +39,7 @@ ProcSelfCGroup::ProcSelfCGroup()
 {
   char buf[4096];
 
-  fd = _real_open("/proc/self/cgroup", O_RDONLY);
+  fd = open("/proc/self/cgroup", O_RDONLY);
   JASSERT(fd != -1) (JASSERT_ERRNO);
   ssize_t numRead = 0;
 
@@ -65,7 +66,7 @@ ProcSelfCGroup::ProcSelfCGroup()
   // TODO(dan): Validate the read data.
   JASSERT(isValidData());
 
-  _real_close(fd);
+  close(fd);
 
   for (size_t i = 0; i < numBytes; i++) {
     if (data[i] == '\n') {
@@ -162,13 +163,13 @@ ProcSelfCGroup::readMemoryLimits(ProcCGroup *group)
     strcpy(buf + prefixLen + nameLen + 2, "memory.limit_in_bytes");
 
     if (access(buf, F_OK) != -1) {
-      tmp_fd = _real_open(buf, O_RDONLY);
+      tmp_fd = open(buf, O_RDONLY);
       JASSERT(tmp_fd != -1) (JASSERT_ERRNO);
-      ssize_t numRead = _real_read(tmp_fd,
-                                   &group->memory.limit_in_bytes,
-                                   sizeof(ssize_t));
+      ssize_t numRead = read(tmp_fd,
+                             &group->memory.limit_in_bytes,
+                             sizeof(ssize_t));
       JASSERT(numRead > 0) (numRead);
-      _real_close(tmp_fd);
+      close(tmp_fd);
     } else {
       group->memory.limit_in_bytes = -1;
     }
@@ -180,9 +181,9 @@ ProcSelfCGroup::readPIDSLimits(ProcCGroup *group)
 {
   std::string group_name = "drewtest";
   std::string cgroup_path = "/sys/fs/cgroup/pids/" + group_name;
-  fd = _real_open((cgroup_path + "/notify_on_release").c_str(), O_RDONLY);
+  fd = open((cgroup_path + "/notify_on_release").c_str(), O_RDONLY);
   JASSERT(fd != -1) (JASSERT_ERRNO);
-  
+
   int buf;
   size_t numRead = Util::readAll(fd, &buf, sizeof(int));
   printf("Read %i\n", buf);
@@ -224,7 +225,7 @@ ProcSelfCGroup::getNextCGroup(ProcCGroup *group)
     case DMTCP_CGROUP_MEMORY:
       return readMemoryLimits(group);
     case DMTCP_CGROUP_PIDS:
-      return readPIDSLimits(group); 
+      return readPIDSLimits(group);
     default:
       JASSERT(0);
   }

@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "dmtcp.h"
-
+#include "procselfcgroup.h"
 
 static void
 container_event_hook(DmtcpEvent_t event, DmtcpEventData_t *data)
