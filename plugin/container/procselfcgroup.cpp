@@ -118,6 +118,7 @@ ProcSelfCGroup::readSubsystem(char *buf, size_t bufSize)
 
     char c = data[dataIdx];
     if (c == ':') {
+      buf[i] = '\0';
       break;
     }
     buf[i++] = c;
@@ -134,8 +135,12 @@ ProcSelfCGroup::readName(char *buf, size_t bufSize)
   while (1) {
     JASSERT(i < bufSize);
 
-    char c = buf[dataIdx];
+    char c = data[dataIdx];
     if (c == '\n') {
+      if (buf[i-1] != '/') {
+        buf[i++] = '/';
+      }
+      buf[i] = '\0';
       break;
     }
     buf[i++] = c;
@@ -144,117 +149,133 @@ ProcSelfCGroup::readName(char *buf, size_t bufSize)
   return i;
 }
 
-int
+size_t
+ProcSelfCGroup::readControl(char *pathBuf, const char *ctrlName,
+                            void *dest, size_t size) {
+  int tmp_fd;
+  size_t numRead = 0;
+
+  strcpy(pathBuf, ctrlName);
+  pathBuf[strlen(ctrlName) + 1] = '\0';
+  if (access(pathBuf, F_OK) != -1) {
+    tmp_fd = open(pathBuf, O_RDONLY);
+    JASSERT(tmp_fd != -1) (JASSERT_ERRNO);
+    numRead = read(tmp_fd, dest, size);
+    close(tmp_fd);
+  }
+
+  return numRead;
+}
+
+void
 ProcSelfCGroup::readMemoryLimits(ProcCGroup *group)
 {
   char buf[2 * FILENAMESIZE];
-  const char *prefix = "/sys/fs/cgroup/memory";
-  size_t prefixLen = strlen(prefix);
-  int tmp_fd;
-  ssize_t numRead;
 
   if (strcmp(group->name, "/") == 0) {
     group->memory.limit_in_bytes = -1;
   } else {
-    size_t nameLen = strlen(group->name);
+    const char *prefix = "/sys/fs/cgroup/memory";
+    size_t prefixLen = strlen(prefix);
+
     strcpy(buf, prefix);
     strcpy(buf + prefixLen + 1, group->name);
-    strcpy(buf + prefixLen + nameLen + 2, "memory.");
-    printf("%s\n", buf);
+    size_t bufIdx = prefixLen + strlen(group->name) + 2;
+    strcpy(buf + bufIdx, "memory.");
+    bufIdx += 7;
 
     // Save limit-in-bytes.
-    strcpy(buf + prefixLen + nameLen + 9, "limit_in_bytes");
-    if (access(buf, F_OK) != -1) {
-      tmp_fd = open(buf, O_RDONLY);
-      JASSERT(tmp_fd != -1) (JASSERT_ERRNO);
-      numRead = read(tmp_fd, &group->memory.limit_in_bytes, sizeof(ssize_t));
-      JASSERT(numRead > 0) (numRead);
-      close(tmp_fd);
-    } else {
+    if (!readControl(buf + bufIdx, "limit_in_bytes",
+                     &group->memory.limit_in_bytes,
+                     sizeof(ssize_t))) {
       group->memory.limit_in_bytes = -1;
     }
 
     // Save limit with swap.
-    strcpy(buf + prefixLen + nameLen + 9, "memsw.limit_in_bytes");
-    if (access(buf, F_OK) != -1) {
-      tmp_fd = open(buf, O_RDONLY);
-      JASSERT(tmp_fd != -1) (JASSERT_ERRNO);
-      numRead = read(tmp_fd,
+    if (!readControl(buf + bufIdx, "memsw.limit_in_bytes",
                      &group->memory.memsw_limit_in_bytes,
-                     sizeof(ssize_t));
-      JASSERT(numRead > 0) (numRead);
-      close(tmp_fd);
-    } else {
+                     sizeof(ssize_t))) {
       group->memory.memsw_limit_in_bytes = -1;
     }
 
     // Save soft limit.
-    strcpy(buf + prefixLen + nameLen + 9, "soft_limit_in_bytes");
-    if (access(buf, F_OK) != -1) {
-      tmp_fd = open(buf, O_RDONLY);
-      JASSERT(tmp_fd != -1) (JASSERT_ERRNO);
-      numRead = read(tmp_fd,
+    if (!readControl(buf + bufIdx, "soft_limit_in_bytes",
                      &group->memory.soft_limit_in_bytes,
-                     sizeof(ssize_t));
-      JASSERT(numRead > 0) (numRead);
-      close(tmp_fd);
-    } else {
+                     sizeof(ssize_t))) {
       group->memory.soft_limit_in_bytes = -1;
     }
   }
 }
 
-int
+void
 ProcSelfCGroup::readPIDSLimits(ProcCGroup *group)
 {
-  std::string group_name = "drewtest";
-  std::string cgroup_path = "/sys/fs/cgroup/pids/" + group_name;
-  fd = open((cgroup_path + "/notify_on_release").c_str(), O_RDONLY);
-  JASSERT(fd != -1) (JASSERT_ERRNO);
+  char buf[2 * FILENAMESIZE];
 
-  int buf;
-  size_t numRead = Util::readAll(fd, &buf, sizeof(int));
-  printf("Read %i\n", buf);
-  return 0;
+  if (strcmp(group->name, "/") == 0) {
+    group->pids.max = -1;
+  } else {
+    const char *prefix = "/sys/fs/cgroup/pids";
+    size_t prefixLen = strlen(prefix);
+
+    strcpy(buf, prefix);
+    strcpy(buf + prefixLen + 1, group->name);
+    size_t bufIdx = prefixLen + strlen(group->name) + 2;
+    strcpy(buf + bufIdx, "pids.");
+    bufIdx += 5;
+
+    // Save max pids.
+    if (!readControl(buf + bufIdx, "max",
+                     &group->pids.max, sizeof(ssize_t))) {
+      group->pids.max = -1;
+    }
+  }
 }
 
 int
 ProcSelfCGroup::getNextCGroup(ProcCGroup *group)
 {
-  if (dataIdx >= numBytes || data[dataIdx] == 0) {
-    return 0;
-  }
-
   char buf[FILENAMESIZE];
   size_t numRead;
 
-  size_t groupNum = readDec();
-  JASSERT(groupNum == numGroups + 1);
+  while (dataIdx < numBytes && data[dataIdx] != 0) {
+    size_t groupNum = readDec();
+    JASSERT(groupNum > 0);
+    JASSERT(data[dataIdx++] == ':');
 
-  JASSERT(data[dataIdx++] == ':');
+    numRead = readSubsystem(buf, FILENAMESIZE);
+    JASSERT(numRead > 0);
+    JASSERT(data[dataIdx++] == ':');
 
-  numRead = readSubsystem(buf, FILENAMESIZE);
-  JASSERT(numRead > 0);
+    bool skip = false;
+    if (strcmp(buf, "memory") == 0) {
+      group->subsystem = DMTCP_CGROUP_MEMORY;
+    } else if (strcmp(buf, "pids") == 0) {
+      group->subsystem = DMTCP_CGROUP_PIDS;
+    } else {
+      // TODO: Add other groups
+      printf("Skipping cgroup '%s'\n", buf);
+      skip = true;
+    }
 
-  if (strcmp(buf, "memory") == 0) {
-    group->subsystem = DMTCP_CGROUP_MEMORY;
-  } else if (strcmp(buf, "pids") == 0) {
-    group->subsystem = DMTCP_CGROUP_PIDS;
-  } else {
-    // TODO: Add other groups
-    JASSERT(0);
+    numRead = readName(group->name, FILENAMESIZE);
+    JASSERT(numRead > 0);
+    JASSERT(data[dataIdx++] == '\n');
+    if (skip) continue;
+
+    switch (group->subsystem) {
+      case DMTCP_CGROUP_MEMORY:
+        readMemoryLimits(group);
+        break;
+      case DMTCP_CGROUP_PIDS:
+        readPIDSLimits(group);
+        break;
+      default:
+        JASSERT(0);
+    }
+
+    return 1;
   }
 
-  numRead = readName(group->name, FILENAMESIZE);
-  JASSERT(numRead > 0);
-  JASSERT(data[dataIdx++] == '\n');
-
-  switch (group->subsystem) {
-    case DMTCP_CGROUP_MEMORY:
-      return readMemoryLimits(group);
-    case DMTCP_CGROUP_PIDS:
-      return readPIDSLimits(group);
-    default:
-      JASSERT(0);
-  }
+  return 0;
 }

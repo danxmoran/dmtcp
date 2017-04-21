@@ -55,13 +55,19 @@ struct memory {
   // ssize_t kmem_tcp_limit_in_bytes;
 };
 
+struct pids {
+  ssize_t max;
+};
+
 typedef struct ProcCGroup {
   CGroupSubsystem subsystem;
 
   // TODO(dan): Add ability to also track parameters of
   // parent cgroups.
+
   union {
     struct memory memory;
+    struct pids pids;
   };
 
   char name[FILENAMESIZE];

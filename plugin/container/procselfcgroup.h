@@ -29,8 +29,12 @@ class ProcSelfCGroup
     unsigned long int readDec();
     size_t readSubsystem(char *buf, size_t bufSize);
     size_t readName(char *buf, size_t bufSize);
-    int readMemoryLimits(ProcCGroup *group);
-    int readPIDSLimits(ProcCGroup *group);
+    size_t readControl(char *pathBuf,
+                       const char *ctrlName,
+                       void *dest,
+                       size_t size);
+    void readMemoryLimits(ProcCGroup *group);
+    void readPIDSLimits(ProcCGroup *group);
 
     char *data;
     size_t dataIdx;

@@ -26,10 +26,10 @@ checkpoint()
 {
   printf("\n*** The plugin is being called before checkpointing. ***\n");
   ProcSelfCGroup procSelfCGroup;
-  ProcCGroup *group = NULL;
+  ProcCGroup groupBuf;
 
-  while (procSelfCGroup.getNextCGroup(group)) {
-    printf("Reading: %s\n", group->name);
+  while (procSelfCGroup.getNextCGroup(&groupBuf)) {
+    printf("Read: %s\n", groupBuf.name);
   }
 }
 
