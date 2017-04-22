@@ -1,8 +1,37 @@
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 #include "dmtcp.h"
 #include "procselfcgroup.h"
+#include "util.h"
+#include "jassert.h"
+
+#define _real_open   NEXT_FNC(open)
+#define _real_read   NEXT_FNC(read)
 
 using namespace dmtcp;
+
+#define DEFAULT_CONTAINER_CKPT_FILE "./ckpt_container.dmtcp"
+
+int
+write_to_ckpt(void* buffer, size_t buffer_size) {
+  int flags = O_CREAT | O_TRUNC | O_WRONLY;
+  int fd = _real_open(DEFAULT_CONTAINER_CKPT_FILE, flags, 0600);
+  return Util::writeAll(fd, buffer, buffer_size);
+}
+
+int
+read_from_ckpt(void* buffer, size_t buffer_size) {
+  int fd = _real_open(DEFAULT_CONTAINER_CKPT_FILE, O_RDONLY);
+  JASSERT(fd != 0);
+  int read_result = _real_read(fd, buffer, buffer_size);
+  JASSERT(read_result != 0);
+  return read_result;
+}
+
+const char* key = "testkey";
+const char* value = "we got data!";
 
 EXTERNC int
 dmtcp_container_enabled() { return 1; }
@@ -39,19 +68,24 @@ checkpoint()
     }
     delete group;
   }
+  write_to_ckpt((void*)value, strlen(value) + 1);
   printf("\n*** The plugin has finished checkpointing. ***\n");
 }
 
 static void
 resume()
 {
+  size_t buf_size = strlen(value) + 1;
+  char* buf = (char*)malloc(buf_size);
+  read_from_ckpt(buf, buf_size);
   printf("*** The application has now been checkpointed. ***\n");
+  printf("Got some data: %s.\n", buf);
 }
 
 static void
 restart()
 {
-  printf("The application is now restarting from a checkpoint.\n");
+  printf("*** The application has now been checkpointed. ***\n");
 }
 
 static DmtcpBarrier barriers[] = {
