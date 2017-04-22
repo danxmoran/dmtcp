@@ -18,16 +18,15 @@ class ProcSelfCGroup
   public:
 #ifdef JALIB_ALLOCATOR
     static void *operator new(size_t nbytes, void *p) { return p; }
-
     static void *operator new(size_t nbytes) { JALLOC_HELPER_NEW(nbytes); }
-
     static void operator delete(void *p) { JALLOC_HELPER_DELETE(p); }
 #endif // ifdef JALIB_ALLOCATOR
 
     ProcSelfCGroup();
     ~ProcSelfCGroup();
 
-    int getNextCGroup(ProcCGroup *group);
+    size_t getNumCGroups();
+    ProcCGroup *getNextCGroup();
 
   private:
     int parseGroupLine();
@@ -38,6 +37,7 @@ class ProcSelfCGroup
     char *data;
     char *dataTokPtr;
     size_t numBytes;
+    size_t numGroups;
     int fd;
 };
 }

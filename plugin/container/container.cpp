@@ -28,10 +28,16 @@ checkpoint()
 {
   printf("\n*** The plugin is being called before checkpointing. ***\n");
   ProcSelfCGroup procSelfCGroup;
-  ProcCGroup groupBuf;
+  ProcCGroup *group;
 
-  while (procSelfCGroup.getNextCGroup(&groupBuf)) {
-    printf("Read: %s\n", groupBuf.name);
+  while ((group = procSelfCGroup.getNextCGroup())) {
+    CtrlFileHeader hdr;
+    void *fileBuf;
+    while ((fileBuf = group->getNextCtrlFile(hdr))) {
+      printf("%s : %lu bytes\n", hdr.name, hdr.fileSize);
+      JALLOC_HELPER_FREE(fileBuf);
+    }
+    delete group;
   }
   printf("\n*** The plugin has finished checkpointing. ***\n");
 }

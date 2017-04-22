@@ -14,6 +14,7 @@ ProcSelfCGroup::ProcSelfCGroup()
   data(NULL),
   dataTokPtr(NULL),
   numBytes(0),
+  numGroups(0),
   fd(-1)
 {
   char buf[4096];
@@ -47,6 +48,7 @@ ProcSelfCGroup::ProcSelfCGroup()
   while (parseGroupLine()) {}
 
   groupIterator = groupsBySubsystem.begin();
+  groupNameIterator = groupIterator->second.begin();
 }
 
 ProcSelfCGroup::~ProcSelfCGroup()
@@ -94,15 +96,42 @@ ProcSelfCGroup::parseGroupLine()
 
     while ((subsystem = strtok_r(subsystems, ",", &subsystemPtr)) != NULL) {
       subsystems = NULL;
-      groupsBySubsystem[std::string(subsystem)] = groups;
+      std::string std_subsys = std::string(subsystem);
+
+      // CGroups not bound to a subsystem are prefixed with "name=".
+      if (std_subsys.find("name=") == 0) {
+        std_subsys = std_subsys.substr(5);
+      }
+      groupsBySubsystem[std_subsys] = groups;
+      numGroups += groups.size();
     }
   }
 
   return 1;
 }
 
-int
-ProcSelfCGroup::getNextCGroup(ProcCGroup *group)
+size_t
+ProcSelfCGroup::getNumCGroups()
 {
-  return 0;
+  return numGroups;
+}
+
+ProcCGroup *
+ProcSelfCGroup::getNextCGroup()
+{
+  if (groupIterator == groupsBySubsystem.end()) {
+    return NULL;
+  }
+
+  ProcCGroup *group = new ProcCGroup(groupIterator->first, *groupNameIterator);
+
+  groupNameIterator++;
+  if (groupNameIterator == groupIterator->second.end()) {
+    groupIterator++;
+    if (groupIterator != groupsBySubsystem.end()) {
+      groupNameIterator = groupIterator->second.begin();
+    }
+  }
+
+  return group;
 }

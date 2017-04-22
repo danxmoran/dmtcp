@@ -128,6 +128,7 @@ __d_libdir__libdmtcp_unique_ckpt_so_LDADD = $(LDADD)
 libdmtcp_PROGRAMS += $(d_libdir)/libdmtcp_container.so
 __d_libdir__libdmtcp_container_so_SOURCES =												\
 	container/container.cpp																					\
+	container/proccgroup.cpp																				\
 	container/proccgroup.h																					\
 	container/procselfcgroup.cpp																		\
 	container/procselfcgroup.h
