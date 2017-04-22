@@ -2,36 +2,28 @@
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
+
 #include "dmtcp.h"
-#include "procselfcgroup.h"
 #include "util.h"
 #include "jassert.h"
 
-#define _real_open   NEXT_FNC(open)
-#define _real_read   NEXT_FNC(read)
+#include "proccgroup.h"
+#include "procselfcgroup.h"
 
 using namespace dmtcp;
 
-#define DEFAULT_CONTAINER_CKPT_FILE "./ckpt_container.dmtcp"
+#define CKPT_FILE   "./ckpt_container.dmtcp"
+#define CKPT_FLAGS  O_CREAT | O_TRUNC | O_WRONLY
+#define CKPT_PERM   0600
 
-int
-write_to_ckpt(void* buffer, size_t buffer_size) {
-  int flags = O_CREAT | O_TRUNC | O_WRONLY;
-  int fd = _real_open(DEFAULT_CONTAINER_CKPT_FILE, flags, 0600);
-  return Util::writeAll(fd, buffer, buffer_size);
-}
-
-int
+static int
 read_from_ckpt(void* buffer, size_t buffer_size) {
-  int fd = _real_open(DEFAULT_CONTAINER_CKPT_FILE, O_RDONLY);
+  int fd = _real_open(CKPT_FILE, O_RDONLY);
   JASSERT(fd != 0);
   int read_result = _real_read(fd, buffer, buffer_size);
   JASSERT(read_result != 0);
   return read_result;
 }
-
-const char* key = "testkey";
-const char* value = "we got data!";
 
 EXTERNC int
 dmtcp_container_enabled() { return 1; }
@@ -59,27 +51,35 @@ checkpoint()
   ProcSelfCGroup procSelfCGroup;
   ProcCGroup *group;
 
+  int ckpt_fd = _real_open(CKPT_FILE, CKPT_FLAGS, CKPT_PERM);
+  JASSERT(ckpt_fd != -1);
+
+  size_t numGroups = procSelfCGroup.getNumCGroups();
+  Util::writeAll(ckpt_fd, &numGroups, sizeof(size_t));
+
   while ((group = procSelfCGroup.getNextCGroup())) {
+    ProcCGroupHeader grpHdr;
+    group->getHeader(grpHdr);
+    Util::writeAll(ckpt_fd, &grpHdr, sizeof(ProcCGroupHeader));
+
     CtrlFileHeader hdr;
     void *fileBuf;
     while ((fileBuf = group->getNextCtrlFile(hdr))) {
-      printf("%s : %lu bytes\n", hdr.name, hdr.fileSize);
+      Util::writeAll(ckpt_fd, &hdr, sizeof(CtrlFileHeader));
+      Util::writeAll(ckpt_fd, fileBuf, hdr.fileSize);
       JALLOC_HELPER_FREE(fileBuf);
     }
     delete group;
   }
-  write_to_ckpt((void*)value, strlen(value) + 1);
+
+  _real_close(ckpt_fd);
   printf("\n*** The plugin has finished checkpointing. ***\n");
 }
 
 static void
 resume()
 {
-  size_t buf_size = strlen(value) + 1;
-  char* buf = (char*)malloc(buf_size);
-  read_from_ckpt(buf, buf_size);
   printf("*** The application has now been checkpointed. ***\n");
-  printf("Got some data: %s.\n", buf);
 }
 
 static void

@@ -45,10 +45,12 @@ ProcCGroup::~ProcCGroup()
   numFiles = 0;
 }
 
-size_t
-ProcCGroup::getNumCtrlFiles()
+void
+ProcCGroup::getHeader(ProcCGroupHeader &hdr)
 {
-  return numFiles;
+  strcpy(hdr.name, name.c_str());
+  strcpy(hdr.subsystem, subsystem.c_str());
+  hdr.numFiles = numFiles;
 }
 
 void *
@@ -64,7 +66,7 @@ ProcCGroup::getNextCtrlFile(CtrlFileHeader &fileHdr)
   strcpy(fileHdr.name, (*ctrlFileIterator).c_str());
   fileHdr.fileSize = 0;
 
-  int fd = open(fileHdr.name, O_RDONLY);
+  int fd = _real_open(fileHdr.name, O_RDONLY);
   JASSERT(fd != -1) (JASSERT_ERRNO);
 
   do {
@@ -81,7 +83,7 @@ ProcCGroup::getNextCtrlFile(CtrlFileHeader &fileHdr)
 
   fileHdr.fileSize = Util::readAll(fd, data, size);
   JASSERT(fileHdr.fileSize < size) (fileHdr.name) (fileHdr.fileSize) (size);
-  close(fd);
+  _real_close(fd);
 
   ctrlFileIterator++;
 

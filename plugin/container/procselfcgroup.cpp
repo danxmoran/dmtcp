@@ -19,7 +19,7 @@ ProcSelfCGroup::ProcSelfCGroup()
 {
   char buf[4096];
 
-  fd = open("/proc/self/cgroup", O_RDONLY);
+  fd = _real_open("/proc/self/cgroup", O_RDONLY);
   JASSERT(fd != -1) (JASSERT_ERRNO);
   ssize_t numRead = 0;
 
@@ -42,7 +42,7 @@ ProcSelfCGroup::ProcSelfCGroup()
   // TODO(dan): Replace this assert with more robust code that would
   // reallocate the buffer with an extended size.
   JASSERT(numBytes < size) (numBytes) (size);
-  close(fd);
+  _real_close(fd);
 
   // Parse all groups.
   while (parseGroupLine()) {}

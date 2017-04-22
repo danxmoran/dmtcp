@@ -4,15 +4,26 @@
 #include <sys/types.h>
 #include <dirent.h>
 
+#include "dmtcp.h"
 #include "jalloc.h"
 
 #define CGROUP_PREFIX std::string("/sys/fs/cgroup/")
 #define NAMESIZE 1024
 
+#define _real_open   NEXT_FNC(open)
+#define _real_close  NEXT_FNC(close)
+#define _real_read   NEXT_FNC(read)
+
 typedef struct CtrlFileHeader {
   char name[NAMESIZE];
   size_t fileSize;
 } CtrlFileHeader;
+
+typedef struct ProcCGroupHeader {
+  char name[NAMESIZE];
+  char subsystem[NAMESIZE];
+  size_t numFiles;
+} ProcCGroupHeader;
 
 typedef std::vector<std::string> pathList;
 
@@ -30,7 +41,7 @@ class ProcCGroup
     ProcCGroup(std::string subsystem, std::string name);
     ~ProcCGroup();
 
-    size_t getNumCtrlFiles();
+    void getHeader(ProcCGroupHeader &groupHdr);
     void *getNextCtrlFile(CtrlFileHeader &fileHdr);
 
   private:
