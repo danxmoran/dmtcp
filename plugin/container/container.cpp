@@ -17,12 +17,42 @@ using namespace dmtcp;
 #define CKPT_PERM   0600
 
 static int
-read_from_ckpt(void* buffer, size_t buffer_size) {
-  int fd = _real_open(CKPT_FILE, O_RDONLY);
-  JASSERT(fd != 0);
-  int read_result = _real_read(fd, buffer, buffer_size);
+read_ckpt_file(int fd) {
+  CtrlFileHeader header;
+  int read_result = _real_read(fd, &header, sizeof(header));
   JASSERT(read_result != 0);
-  return read_result;
+
+  size_t file_size = header.fileSize;
+
+  void* file_contents = malloc(file_size);
+  read_result = _real_read(fd, file_contents, file_size);
+  JASSERT(read_result != 0);
+}
+
+static int
+read_ckpt_header(int fd) {
+  ProcCGroupHeader header;
+  int read_result = _real_read(fd, &header, sizeof(header));
+  JASSERT(read_result != 0);
+
+  size_t number_files = header.numFiles;
+  int i;
+  for (i = 0; i < number_files; i++) {
+    read_ckpt_file(fd);
+  }
+}
+
+static int
+read_from_ckpt(int fd) {
+  // find the number of subsystems
+  size_t num_systems;
+  int read_result = _real_read(fd, &num_systems, sizeof(size_t));
+  JASSERT(read_result != 0);
+
+  int i;
+  for (i = 0; i < num_systems; i++) {
+    read_ckpt_header(fd);
+  }
 }
 
 EXTERNC int
@@ -79,6 +109,10 @@ checkpoint()
 static void
 resume()
 {
+  int fd = _real_open(CKPT_FILE, O_RDONLY);
+  JASSERT(fd != 0);
+  read_from_ckpt(fd);
+  _real_close(fd);
   printf("*** The application has now been checkpointed. ***\n");
 }
 
