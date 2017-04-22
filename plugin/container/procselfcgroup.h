@@ -1,8 +1,15 @@
 #ifndef __DMTCP_PROCSELFCGROUP_H__
 #define __DMTCP_PROCSELFCGROUP_H__
 
+#include <map>
+#include <vector>
+#include <string>
+
 #include "jalloc.h"
 #include "proccgroup.h"
+
+typedef std::vector<std::string> GroupNameList;
+typedef std::map<std::string, GroupNameList> GroupMap;
 
 namespace dmtcp
 {
@@ -20,25 +27,16 @@ class ProcSelfCGroup
     ProcSelfCGroup();
     ~ProcSelfCGroup();
 
-    size_t getNumCGroups() const { return numGroups; }
-
     int getNextCGroup(ProcCGroup *group);
 
   private:
-    bool isValidData();
-    unsigned long int readDec();
-    size_t readSubsystem(char *buf, size_t bufSize);
-    size_t readName(char *buf, size_t bufSize);
-    size_t readControl(char *pathBuf,
-                       const char *ctrlName,
-                       void *dest,
-                       size_t size);
-    void readMemoryLimits(ProcCGroup *group);
-    void readPIDSLimits(ProcCGroup *group);
+    int parseGroupLine();
 
+    GroupMap groupsBySubsystem;
+    GroupMap::iterator groupIterator;
+    GroupNameList::iterator groupNameIterator;
     char *data;
-    size_t dataIdx;
-    size_t numGroups;
+    char *dataTokPtr;
     size_t numBytes;
     int fd;
 };

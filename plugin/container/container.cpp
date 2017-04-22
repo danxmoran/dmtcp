@@ -4,6 +4,8 @@
 
 using namespace dmtcp;
 
+EXTERNC int
+dmtcp_container_enabled() { return 1; }
 
 static void
 container_event_hook(DmtcpEvent_t event, DmtcpEventData_t *data)
@@ -31,6 +33,7 @@ checkpoint()
   while (procSelfCGroup.getNextCGroup(&groupBuf)) {
     printf("Read: %s\n", groupBuf.name);
   }
+  printf("\n*** The plugin has finished checkpointing. ***\n");
 }
 
 static void
