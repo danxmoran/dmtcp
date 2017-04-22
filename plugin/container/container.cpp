@@ -25,9 +25,46 @@ int
 read_from_ckpt(void* buffer, size_t buffer_size) {
   int fd = _real_open(DEFAULT_CONTAINER_CKPT_FILE, O_RDONLY);
   JASSERT(fd != 0);
-  int read_result = _real_read(fd, buffer, buffer_size);
+
+  // find the number of subsystems
+  size_t num_systems;
+  int read_result = _real_read(fd, &num_systems, sizeof(size_t));
+  JASSERT(read_result != 0); 
+ 
+  printtf("Found %i subsystems in header file\n", num_systems);
+  int i;
+  for (i = 0; i < numSystems; i++) {
+    read_ckpt_header(fd);
+  }
+}
+
+int
+read_ckpt_header(int fd) {
+  ProcCGroupHeader header; 
+  int read_result = _real_read(fd, &header, sizeof(header));
   JASSERT(read_result != 0);
-  return read_result;
+
+  printtf("Reading subsystem header: %s\n", header.name);
+  size_t number_files = header.numFiles;
+  int i;
+  for (i = 0; i < number_files; i++) {
+    read_ckpt_file(fd);
+  }
+
+  printtf("Finished reading subsystem header: %s\n", header.name);
+}
+
+read_ckpt_file(int fd) {
+  CtrlFileHeader header; 
+  int read_result = _real_read(fd, &header, sizeof(header));
+  JASSERT(read_result != 0);
+
+  size_t file_size = header.fileSize;
+
+  void* file_contents = malloc(file_size);
+  read_result = _real_read(fd, file_contents, file_size);
+  JASSERT(read_result != 0);
+  printf("Read file: %s\n", header.name);
 }
 
 const char* key = "testkey";
@@ -56,20 +93,13 @@ static void
 checkpoint()
 {
   printf("\n*** The plugin is being called before checkpointing. ***\n");
-  ProcSelfCGroup procSelfCGroup;
-  ProcCGroup *group;
+//  ProcSelfCGroup procSelfCGroup;
+//  ProcCGroup groupBuf;
 
-  while ((group = procSelfCGroup.getNextCGroup())) {
-    CtrlFileHeader hdr;
-    void *fileBuf;
-    while ((fileBuf = group->getNextCtrlFile(hdr))) {
-      printf("%s : %lu bytes\n", hdr.name, hdr.fileSize);
-      JALLOC_HELPER_FREE(fileBuf);
-    }
-    delete group;
-  }
+//  while (procSelfCGroup.getNextCGroup(&groupBuf)) {
+//    printf("Read: %s\n", groupBuf.name);
+//  }
   write_to_ckpt((void*)value, strlen(value) + 1);
-  printf("\n*** The plugin has finished checkpointing. ***\n");
 }
 
 static void
