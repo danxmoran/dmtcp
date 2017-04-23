@@ -7,62 +7,13 @@
 #include "util.h"
 #include "jassert.h"
 
-#include "proccgroup.h"
+#include "cgroupwrapper.h"
 #include "procselfcgroup.h"
 
 #define CKPT_FILE "ckpt_cgroup.dmtcp"
 
 using namespace dmtcp;
 
-
-static int
-restoreCtrlFile(ProcCGroup *group, int fd)
-{
-  CtrlFileHeader header;
-  int readResult = _real_read(fd, &header, sizeof(header));
-  JASSERT(readResult > 0) (JASSERT_ERRNO);
-
-  size_t fileSize = header.fileSize;
-  void* fileContents = JALLOC_HELPER_MALLOC(fileSize);
-  readResult = _real_read(fd, fileContents, fileSize);
-  JASSERT(readResult > 0) (JASSERT_ERRNO);
-
-  group->writeCtrlFile(header, fileContents);
-  JALLOC_HELPER_FREE(fileContents);
-}
-
-static int
-restoreCGroup(int fd, pid_t realPid)
-{
-  ProcCGroupHeader header;
-  int readResult = _real_read(fd, &header, sizeof(ProcCGroupHeader));
-  JASSERT(readResult > 0) (JASSERT_ERRNO);
-
-  ProcCGroup *group = new ProcCGroup(header);
-  group->createIfNotExist();
-
-  size_t fileCount = header.numFiles;
-  for (size_t i = 0; i < fileCount; i++) {
-    restoreCtrlFile(group, fd);
-  }
-
-  group->addPid(realPid);
-  JALLOC_HELPER_DELETE(group);
-}
-
-static int
-restoreFromCkpt(int fd)
-{
-  // Find the number of groups that were checkpointed.
-  size_t numGroups;
-  int readResult = _real_read(fd, &numGroups, sizeof(size_t));
-  JASSERT(readResult > 0) (JASSERT_ERRNO);
-
-  pid_t realPid = dmtcp_virtual_to_real_pid(getpid());
-  for (size_t i = 0; i < numGroups; i++) {
-    restoreCGroup(fd, realPid);
-  }
-}
 
 EXTERNC int
 dmtcp_cgroup_enabled() { return 1; }
@@ -87,7 +38,7 @@ checkpoint()
 {
   printf("\n*** The plugin is being called before checkpointing. ***\n");
   ProcSelfCGroup procSelfCGroup;
-  ProcCGroup *group;
+  CGroupWrapper *group;
 
   int ckpt_fd = _real_open(CKPT_FILE, O_CREAT | O_TRUNC | O_WRONLY, 0600);
   JASSERT(ckpt_fd != -1);
@@ -96,10 +47,10 @@ checkpoint()
   Util::writeAll(ckpt_fd, &numGroups, sizeof(size_t));
 
   while ((group = procSelfCGroup.getNextCGroup())) {
-    ProcCGroupHeader grpHdr;
+    CGroupHeader grpHdr;
     group->initCtrlFiles();
     group->getHeader(grpHdr);
-    Util::writeAll(ckpt_fd, &grpHdr, sizeof(ProcCGroupHeader));
+    Util::writeAll(ckpt_fd, &grpHdr, sizeof(CGroupHeader));
 
     CtrlFileHeader hdr;
     void *fileBuf;
@@ -120,7 +71,39 @@ restart()
 {
   int fd = _real_open(CKPT_FILE, O_RDONLY);
   JASSERT(fd != 0);
-  restoreFromCkpt(fd);
+
+  int readResult;
+  size_t numGroups;
+  readResult = _real_read(fd, &numGroups, sizeof(size_t));
+  JASSERT(readResult > 0) (JASSERT_ERRNO);
+
+  CGroupHeader groupHeader;
+  CtrlFileHeader fileHeader;
+  pid_t realPid = dmtcp_virtual_to_real_pid(getpid());
+  for (size_t i = 0; i < numGroups; i++) {
+    readResult = _real_read(fd, &groupHeader, sizeof(CGroupHeader));
+    JASSERT(readResult > 0) (JASSERT_ERRNO);
+
+    CGroupWrapper *group = new CGroupWrapper(groupHeader);
+    group->createIfNotExist();
+
+    size_t fileCount = groupHeader.numFiles;
+    for (size_t j = 0; j < fileCount; j++) {
+      readResult = _real_read(fd, &fileHeader, sizeof(CtrlFileHeader));
+      JASSERT(readResult > 0) (JASSERT_ERRNO);
+
+      size_t fileSize = fileHeader.fileSize;
+      void* fileContents = JALLOC_HELPER_MALLOC(fileSize);
+      readResult = _real_read(fd, fileContents, fileSize);
+      JASSERT(readResult != -1) (JASSERT_ERRNO);
+
+      group->writeCtrlFile(fileHeader, fileContents);
+      JALLOC_HELPER_FREE(fileContents);
+    }
+
+    group->addPid(realPid);
+    JALLOC_HELPER_DELETE(group);
+  }
   _real_close(fd);
   printf("*** The application has restarted. ***\n");
 }
@@ -133,10 +116,10 @@ static DmtcpBarrier barriers[] = {
 DmtcpPluginDescriptor_t cgroupPlugin = {
   DMTCP_PLUGIN_API_VERSION,
   DMTCP_PACKAGE_VERSION,
-  "Control Group checkpointing",
-  "DMTCP",
-  "dmtcp@ccs.neu.edu",
-  "Example plugin",
+  "Control Group Plugin",
+  "Daniel Moran, Drew Pomerleau, Matthew Piorko",
+  "moran.dan@husky.neu.edu, pomerleau.dr@husky.neu.edu",
+  "Saves and restores cgroup names and parameters",
   DMTCP_DECL_BARRIERS(barriers),
   cgroupEventHook
 };

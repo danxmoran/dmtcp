@@ -5,12 +5,12 @@
 #include <sys/stat.h>
 #include <string>
 
-#include "proccgroup.h"
+#include "cgroupwrapper.h"
 
 using namespace dmtcp;
 
 
-ProcCGroup::ProcCGroup(std::string subsystem, std::string name)
+CGroupWrapper::CGroupWrapper(std::string subsystem, std::string name)
   : subsystem(subsystem),
   name(name),
   numFiles(0),
@@ -19,7 +19,7 @@ ProcCGroup::ProcCGroup(std::string subsystem, std::string name)
   path = CGROUP_PREFIX + subsystem + name;
 }
 
-ProcCGroup::ProcCGroup(ProcCGroupHeader &groupHdr)
+CGroupWrapper::CGroupWrapper(CGroupHeader &groupHdr)
   : numFiles(0),
   ctrlFilePaths(pathList())
 {
@@ -28,13 +28,13 @@ ProcCGroup::ProcCGroup(ProcCGroupHeader &groupHdr)
   path = CGROUP_PREFIX + subsystem + name;
 }
 
-ProcCGroup::~ProcCGroup()
+CGroupWrapper::~CGroupWrapper()
 {
   numFiles = 0;
 }
 
 void
-ProcCGroup::getHeader(ProcCGroupHeader &hdr)
+CGroupWrapper::getHeader(CGroupHeader &hdr)
 {
   strcpy(hdr.name, name.c_str());
   strcpy(hdr.subsystem, subsystem.c_str());
@@ -42,7 +42,7 @@ ProcCGroup::getHeader(ProcCGroupHeader &hdr)
 }
 
 void
-ProcCGroup::createIfNotExist()
+CGroupWrapper::createIfNotExist()
 {
   int mkRes = mkdir(path.c_str(), 755);
   if (mkRes == -1) {
@@ -51,7 +51,7 @@ ProcCGroup::createIfNotExist()
 }
 
 void
-ProcCGroup::initCtrlFiles()
+CGroupWrapper::initCtrlFiles()
 {
   DIR *dir = opendir(path.c_str());
   JASSERT(dir != NULL) (path);
@@ -81,7 +81,7 @@ ProcCGroup::initCtrlFiles()
 }
 
 void *
-ProcCGroup::getNextCtrlFile(CtrlFileHeader &fileHdr)
+CGroupWrapper::getNextCtrlFile(CtrlFileHeader &fileHdr)
 {
   if (numFiles == 0 || ctrlFileIterator == ctrlFilePaths.end()) {
     return NULL;
@@ -118,18 +118,18 @@ ProcCGroup::getNextCtrlFile(CtrlFileHeader &fileHdr)
 }
 
 void
-ProcCGroup::writeCtrlFile(CtrlFileHeader &fileHdr, void *contentBuf)
+CGroupWrapper::writeCtrlFile(CtrlFileHeader &fileHdr, void *contentBuf)
 {
   int fd = _real_open(fileHdr.name, O_CREAT | O_TRUNC | O_WRONLY);
   JASSERT(fd != -1) (JASSERT_ERRNO);
 
   int writeRes = _real_write(fd, contentBuf, fileHdr.fileSize);
   _real_close(fd);
-  JASSERT(writeRes > 0) (JASSERT_ERRNO) (fileHdr.name);
+  JASSERT(writeRes != -1) (JASSERT_ERRNO) (fileHdr.name);
 }
 
 void
-ProcCGroup::addPid(pid_t pid)
+CGroupWrapper::addPid(pid_t pid)
 {
   std::string procsPath = path + "/cgroup.procs";
   int fd = _real_open(procsPath.c_str(), O_WRONLY);
@@ -139,5 +139,5 @@ ProcCGroup::addPid(pid_t pid)
   sprintf(pidbuf, "%d", pid);
   int writeRes = _real_write(fd, pidbuf, strlen(pidbuf));
   _real_close(fd);
-  JASSERT(writeRes > 0) (JASSERT_ERRNO);
+  JASSERT(writeRes != -1) (JASSERT_ERRNO);
 }

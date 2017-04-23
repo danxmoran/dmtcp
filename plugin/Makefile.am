@@ -128,8 +128,8 @@ __d_libdir__libdmtcp_unique_ckpt_so_LDADD = $(LDADD)
 libdmtcp_PROGRAMS += $(d_libdir)/libdmtcp_cgroup.so
 __d_libdir__libdmtcp_cgroup_so_SOURCES =												\
 	cgroup/cgroup.cpp																							\
-	cgroup/proccgroup.cpp																					\
-	cgroup/proccgroup.h																						\
+	cgroup/cgroupwrapper.cpp																			\
+	cgroup/cgroupwrapper.h																				\
 	cgroup/procselfcgroup.cpp																			\
 	cgroup/procselfcgroup.h
 __d_libdir__libdmtcp_cgroup_so_LDFLAGS = $(dmtcp_ldflags)

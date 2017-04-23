@@ -1,5 +1,5 @@
-#ifndef PROCCGROUP_H
-#define PROCCGROUP_H
+#ifndef CGroupWrapper_H
+#define CGroupWrapper_H
 
 #include <sys/types.h>
 
@@ -19,17 +19,17 @@ typedef struct CtrlFileHeader {
   size_t fileSize;
 } CtrlFileHeader;
 
-typedef struct ProcCGroupHeader {
+typedef struct CGroupHeader {
   char name[NAMESIZE];
   char subsystem[NAMESIZE];
   size_t numFiles;
-} ProcCGroupHeader;
+} CGroupHeader;
 
 typedef std::vector<std::string> pathList;
 
 namespace dmtcp
 {
-class ProcCGroup
+class CGroupWrapper
 {
   public:
 #ifdef JALIB_ALLOCATOR
@@ -38,11 +38,11 @@ class ProcCGroup
     static void operator delete(void *p) { JALLOC_HELPER_DELETE(p); }
 #endif // ifdef JALIB_ALLOCATOR
 
-    ProcCGroup(std::string subsystem, std::string name);
-    ProcCGroup(ProcCGroupHeader &groupHdr);
-    ~ProcCGroup();
+    CGroupWrapper(std::string subsystem, std::string name);
+    CGroupWrapper(CGroupHeader &groupHdr);
+    ~CGroupWrapper();
 
-    void getHeader(ProcCGroupHeader &groupHdr);
+    void getHeader(CGroupHeader &groupHdr);
     void createIfNotExist();
     void initCtrlFiles();
     void *getNextCtrlFile(CtrlFileHeader &fileHdr);
@@ -59,4 +59,4 @@ class ProcCGroup
 };
 }
 
-#endif // ifndef PROCCGROUP_H
+#endif // ifndef CGroupWrapper_H
