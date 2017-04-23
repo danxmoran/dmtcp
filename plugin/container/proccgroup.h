@@ -2,7 +2,6 @@
 #define PROCCGROUP_H
 
 #include <sys/types.h>
-#include <dirent.h>
 
 #include "dmtcp.h"
 #include "jalloc.h"
@@ -13,6 +12,7 @@
 #define _real_open   NEXT_FNC(open)
 #define _real_close  NEXT_FNC(close)
 #define _real_read   NEXT_FNC(read)
+#define _real_write  NEXT_FNC(write)
 
 typedef struct CtrlFileHeader {
   char name[NAMESIZE];
@@ -39,14 +39,20 @@ class ProcCGroup
 #endif // ifdef JALIB_ALLOCATOR
 
     ProcCGroup(std::string subsystem, std::string name);
+    ProcCGroup(ProcCGroupHeader &groupHdr);
     ~ProcCGroup();
 
     void getHeader(ProcCGroupHeader &groupHdr);
+    void createIfNotExist();
+    void initCtrlFiles();
     void *getNextCtrlFile(CtrlFileHeader &fileHdr);
+    void writeCtrlFile(CtrlFileHeader &fileHdr, void *contentBuf);
+    void addPid(pid_t pid);
 
   private:
     std::string subsystem;
     std::string name;
+    std::string path;
     size_t numFiles;
     pathList ctrlFilePaths;
     pathList::iterator ctrlFileIterator;

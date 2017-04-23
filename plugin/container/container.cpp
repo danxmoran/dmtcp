@@ -10,48 +10,57 @@
 #include "proccgroup.h"
 #include "procselfcgroup.h"
 
+#define CKPT_FILE "ckpt_container.dmtcp"
+
 using namespace dmtcp;
 
-#define CKPT_FILE   "./ckpt_container.dmtcp"
-#define CKPT_FLAGS  O_CREAT | O_TRUNC | O_WRONLY
-#define CKPT_PERM   0600
 
 static int
-read_ckpt_file(int fd) {
+restoreCtrlFile(ProcCGroup *group, int fd)
+{
   CtrlFileHeader header;
-  int read_result = _real_read(fd, &header, sizeof(header));
-  JASSERT(read_result != 0);
+  int readResult = _real_read(fd, &header, sizeof(header));
+  JASSERT(readResult > 0) (JASSERT_ERRNO);
 
-  size_t file_size = header.fileSize;
+  size_t fileSize = header.fileSize;
+  void* fileContents = JALLOC_HELPER_MALLOC(fileSize);
+  readResult = _real_read(fd, fileContents, fileSize);
+  JASSERT(readResult > 0) (JASSERT_ERRNO);
 
-  void* file_contents = malloc(file_size);
-  read_result = _real_read(fd, file_contents, file_size);
-  JASSERT(read_result != 0);
+  group->writeCtrlFile(header, fileContents);
+  JALLOC_HELPER_FREE(fileContents);
 }
 
 static int
-read_ckpt_header(int fd) {
+restoreCGroup(int fd, pid_t realPid)
+{
   ProcCGroupHeader header;
-  int read_result = _real_read(fd, &header, sizeof(header));
-  JASSERT(read_result != 0);
+  int readResult = _real_read(fd, &header, sizeof(ProcCGroupHeader));
+  JASSERT(readResult > 0) (JASSERT_ERRNO);
 
-  size_t number_files = header.numFiles;
-  int i;
-  for (i = 0; i < number_files; i++) {
-    read_ckpt_file(fd);
+  ProcCGroup *group = new ProcCGroup(header);
+  group->createIfNotExist();
+
+  size_t fileCount = header.numFiles;
+  for (size_t i = 0; i < fileCount; i++) {
+    restoreCtrlFile(group, fd);
   }
+
+  group->addPid(realPid);
+  JALLOC_HELPER_DELETE(group);
 }
 
 static int
-read_from_ckpt(int fd) {
-  // find the number of subsystems
-  size_t num_systems;
-  int read_result = _real_read(fd, &num_systems, sizeof(size_t));
-  JASSERT(read_result != 0);
+restoreFromCkpt(int fd)
+{
+  // Find the number of groups that were checkpointed.
+  size_t numGroups;
+  int readResult = _real_read(fd, &numGroups, sizeof(size_t));
+  JASSERT(readResult > 0) (JASSERT_ERRNO);
 
-  int i;
-  for (i = 0; i < num_systems; i++) {
-    read_ckpt_header(fd);
+  pid_t realPid = dmtcp_virtual_to_real_pid(getpid());
+  for (size_t i = 0; i < numGroups; i++) {
+    restoreCGroup(fd, realPid);
   }
 }
 
@@ -61,7 +70,6 @@ dmtcp_container_enabled() { return 1; }
 static void
 container_event_hook(DmtcpEvent_t event, DmtcpEventData_t *data)
 {
-  /* NOTE:  See warning in plugin/README about calls to printf here. */
   switch (event) {
   case DMTCP_EVENT_INIT:
     printf("The plugin containing %s has been initialized.\n", __FILE__);
@@ -81,7 +89,7 @@ checkpoint()
   ProcSelfCGroup procSelfCGroup;
   ProcCGroup *group;
 
-  int ckpt_fd = _real_open(CKPT_FILE, CKPT_FLAGS, CKPT_PERM);
+  int ckpt_fd = _real_open(CKPT_FILE, O_CREAT | O_TRUNC | O_WRONLY, 0600);
   JASSERT(ckpt_fd != -1);
 
   size_t numGroups = procSelfCGroup.getNumCGroups();
@@ -89,6 +97,7 @@ checkpoint()
 
   while ((group = procSelfCGroup.getNextCGroup())) {
     ProcCGroupHeader grpHdr;
+    group->initCtrlFiles();
     group->getHeader(grpHdr);
     Util::writeAll(ckpt_fd, &grpHdr, sizeof(ProcCGroupHeader));
 
@@ -99,32 +108,25 @@ checkpoint()
       Util::writeAll(ckpt_fd, fileBuf, hdr.fileSize);
       JALLOC_HELPER_FREE(fileBuf);
     }
-    delete group;
+    JALLOC_HELPER_DELETE(group);
   }
 
   _real_close(ckpt_fd);
-  printf("\n*** The plugin has finished checkpointing. ***\n");
-}
-
-static void
-resume()
-{
-  int fd = _real_open(CKPT_FILE, O_RDONLY);
-  JASSERT(fd != 0);
-  read_from_ckpt(fd);
-  _real_close(fd);
-  printf("*** The application has now been checkpointed. ***\n");
+  printf("*** The plugin has finished checkpointing. ***\n");
 }
 
 static void
 restart()
 {
-  printf("*** The application has now been checkpointed. ***\n");
+  int fd = _real_open(CKPT_FILE, O_RDONLY);
+  JASSERT(fd != 0);
+  restoreFromCkpt(fd);
+  _real_close(fd);
+  printf("*** The application has restarted. ***\n");
 }
 
 static DmtcpBarrier barriers[] = {
   { DMTCP_GLOBAL_BARRIER_PRE_CKPT, checkpoint, "checkpoint" },
-  { DMTCP_GLOBAL_BARRIER_RESUME, resume, "resume" },
   { DMTCP_GLOBAL_BARRIER_RESTART, restart, "restart" }
 };
 

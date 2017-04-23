@@ -11,6 +11,7 @@
 *.so
 *.pyc
 *.dirstamp
+*.pid
 Makefile
 core
 cscope.*

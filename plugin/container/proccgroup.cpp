@@ -1,3 +1,4 @@
+#include <dirent.h>
 #include <fcntl.h>
 #include <jassert.h>
 #include <util.h>
@@ -15,29 +16,16 @@ ProcCGroup::ProcCGroup(std::string subsystem, std::string name)
   numFiles(0),
   ctrlFilePaths(pathList())
 {
-  std::string cgroupPath = CGROUP_PREFIX + subsystem + name;
-  DIR *dir = opendir(cgroupPath.c_str());
-  JASSERT(dir != NULL) (cgroupPath);
+  path = CGROUP_PREFIX + subsystem + name;
+}
 
-  struct dirent *ent;
-  while ((ent = readdir(dir)) != NULL) {
-    std::string entName = std::string(ent->d_name);
-    // Only try to dump control files for the current subsystem.
-    if (entName.find(subsystem) == 0) {
-      std::string entPath = cgroupPath + "/" + std::string(ent->d_name);
-      struct stat fStat;
-      // Only dump files with read-write access.
-      int statRes = stat(entPath.c_str(), &fStat);
-      JASSERT(statRes != -1) (JASSERT_ERRNO);
-      if ((fStat.st_mode & S_IRUSR) && (fStat.st_mode & S_IWUSR)) {
-        ctrlFilePaths.push_back(entPath);
-      }
-    }
-  }
-
-  closedir(dir);
-  numFiles = ctrlFilePaths.size();
-  ctrlFileIterator = ctrlFilePaths.begin();
+ProcCGroup::ProcCGroup(ProcCGroupHeader &groupHdr)
+  : numFiles(0),
+  ctrlFilePaths(pathList())
+{
+  name = std::string(groupHdr.name);
+  subsystem = std::string(groupHdr.subsystem);
+  path = CGROUP_PREFIX + subsystem + name;
 }
 
 ProcCGroup::~ProcCGroup()
@@ -53,10 +41,49 @@ ProcCGroup::getHeader(ProcCGroupHeader &hdr)
   hdr.numFiles = numFiles;
 }
 
+void
+ProcCGroup::createIfNotExist()
+{
+  int mkRes = mkdir(path.c_str(), 755);
+  if (mkRes == -1) {
+    JASSERT(errno == EEXIST) (JASSERT_ERRNO);
+  }
+}
+
+void
+ProcCGroup::initCtrlFiles()
+{
+  DIR *dir = opendir(path.c_str());
+  JASSERT(dir != NULL) (path);
+
+  struct dirent *ent;
+  while ((ent = readdir(dir)) != NULL) {
+    std::string entName = std::string(ent->d_name);
+    // Only try to dump control files for the current subsystem.
+    if (entName.find(subsystem) == 0) {
+      // TODO(dan): How can we capture special cases like this?
+      if (entName == "memory.oom_control") continue;
+
+      std::string entPath = path + "/" + std::string(ent->d_name);
+      struct stat fStat;
+      // Only dump files with read-write access.
+      int statRes = stat(entPath.c_str(), &fStat);
+      JASSERT(statRes != -1) (JASSERT_ERRNO);
+      if ((fStat.st_mode & S_IRUSR) && (fStat.st_mode & S_IWUSR)) {
+        ctrlFilePaths.push_back(entPath);
+      }
+    }
+  }
+
+  closedir(dir);
+  numFiles = ctrlFilePaths.size();
+  ctrlFileIterator = ctrlFilePaths.begin();
+}
+
 void *
 ProcCGroup::getNextCtrlFile(CtrlFileHeader &fileHdr)
 {
-  if (ctrlFileIterator == ctrlFilePaths.end()) {
+  if (numFiles == 0 || ctrlFileIterator == ctrlFilePaths.end()) {
     return NULL;
   }
 
@@ -88,4 +115,29 @@ ProcCGroup::getNextCtrlFile(CtrlFileHeader &fileHdr)
   ctrlFileIterator++;
 
   return data;
+}
+
+void
+ProcCGroup::writeCtrlFile(CtrlFileHeader &fileHdr, void *contentBuf)
+{
+  int fd = _real_open(fileHdr.name, O_CREAT | O_TRUNC | O_WRONLY);
+  JASSERT(fd != -1) (JASSERT_ERRNO);
+
+  int writeRes = _real_write(fd, contentBuf, fileHdr.fileSize);
+  _real_close(fd);
+  JASSERT(writeRes > 0) (JASSERT_ERRNO) (fileHdr.name);
+}
+
+void
+ProcCGroup::addPid(pid_t pid)
+{
+  std::string procsPath = path + "/cgroup.procs";
+  int fd = _real_open(procsPath.c_str(), O_WRONLY);
+  JASSERT(fd != -1) (JASSERT_ERRNO);
+
+  char pidbuf[100];
+  sprintf(pidbuf, "%d", pid);
+  int writeRes = _real_write(fd, pidbuf, strlen(pidbuf));
+  _real_close(fd);
+  JASSERT(writeRes > 0) (JASSERT_ERRNO);
 }
