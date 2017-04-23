@@ -123,17 +123,17 @@ __d_libdir__libdmtcp_unique_ckpt_so_LDFLAGS = $(dmtcp_ldflags)
 __d_libdir__libdmtcp_unique_ckpt_so_LDADD = $(LDADD)
 
 #
-# Container plugin
+# CGroup plugin
 #
-libdmtcp_PROGRAMS += $(d_libdir)/libdmtcp_container.so
-__d_libdir__libdmtcp_container_so_SOURCES =												\
-	container/container.cpp																					\
-	container/proccgroup.cpp																				\
-	container/proccgroup.h																					\
-	container/procselfcgroup.cpp																		\
-	container/procselfcgroup.h
-__d_libdir__libdmtcp_container_so_LDFLAGS = $(dmtcp_ldflags)
-__d_libdir__libdmtcp_container_so_LDADD = $(LDADD)
+libdmtcp_PROGRAMS += $(d_libdir)/libdmtcp_cgroup.so
+__d_libdir__libdmtcp_cgroup_so_SOURCES =												\
+	cgroup/cgroup.cpp																							\
+	cgroup/proccgroup.cpp																					\
+	cgroup/proccgroup.h																						\
+	cgroup/procselfcgroup.cpp																			\
+	cgroup/procselfcgroup.h
+__d_libdir__libdmtcp_cgroup_so_LDFLAGS = $(dmtcp_ldflags)
+__d_libdir__libdmtcp_cgroup_so_LDADD = $(LDADD)
 
 install-libs: install-libdmtcpPROGRAMS
 

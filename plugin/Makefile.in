@@ -104,7 +104,7 @@ bin_PROGRAMS = $(d_bindir)/dmtcp_discover_rm$(EXEEXT) \
 libdmtcp_PROGRAMS = $(d_libdir)/libdmtcp_batch-queue.so$(EXEEXT) \
 	$(d_libdir)/libdmtcp_modify-env.so$(EXEEXT) \
 	$(d_libdir)/libdmtcp_unique-ckpt.so$(EXEEXT) \
-	$(d_libdir)/libdmtcp_container.so$(EXEEXT)
+	$(d_libdir)/libdmtcp_cgroup.so$(EXEEXT)
 subdir = plugin
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -145,14 +145,13 @@ __d_libdir__libdmtcp_batch_queue_so_DEPENDENCIES =  \
 __d_libdir__libdmtcp_batch_queue_so_LINK = $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(__d_libdir__libdmtcp_batch_queue_so_LDFLAGS) \
 	$(LDFLAGS) -o $@
-am___d_libdir__libdmtcp_container_so_OBJECTS = container.$(OBJEXT) \
+am___d_libdir__libdmtcp_cgroup_so_OBJECTS = cgroup.$(OBJEXT) \
 	proccgroup.$(OBJEXT) procselfcgroup.$(OBJEXT)
-__d_libdir__libdmtcp_container_so_OBJECTS =  \
-	$(am___d_libdir__libdmtcp_container_so_OBJECTS)
-__d_libdir__libdmtcp_container_so_DEPENDENCIES =  \
-	$(am__DEPENDENCIES_1)
-__d_libdir__libdmtcp_container_so_LINK = $(CXXLD) $(AM_CXXFLAGS) \
-	$(CXXFLAGS) $(__d_libdir__libdmtcp_container_so_LDFLAGS) \
+__d_libdir__libdmtcp_cgroup_so_OBJECTS =  \
+	$(am___d_libdir__libdmtcp_cgroup_so_OBJECTS)
+__d_libdir__libdmtcp_cgroup_so_DEPENDENCIES = $(am__DEPENDENCIES_1)
+__d_libdir__libdmtcp_cgroup_so_LINK = $(CXXLD) $(AM_CXXFLAGS) \
+	$(CXXFLAGS) $(__d_libdir__libdmtcp_cgroup_so_LDFLAGS) \
 	$(LDFLAGS) -o $@
 am___d_libdir__libdmtcp_modify_env_so_OBJECTS = modify-env.$(OBJEXT) \
 	warning.$(OBJEXT)
@@ -248,13 +247,13 @@ am__v_CXXLD_1 =
 SOURCES = $(__d_bindir__dmtcp_discover_rm_SOURCES) \
 	$(__d_bindir__dmtcp_srun_helper_SOURCES) \
 	$(__d_libdir__libdmtcp_batch_queue_so_SOURCES) \
-	$(__d_libdir__libdmtcp_container_so_SOURCES) \
+	$(__d_libdir__libdmtcp_cgroup_so_SOURCES) \
 	$(__d_libdir__libdmtcp_modify_env_so_SOURCES) \
 	$(__d_libdir__libdmtcp_unique_ckpt_so_SOURCES)
 DIST_SOURCES = $(__d_bindir__dmtcp_discover_rm_SOURCES) \
 	$(__d_bindir__dmtcp_srun_helper_SOURCES) \
 	$(__d_libdir__libdmtcp_batch_queue_so_SOURCES) \
-	$(__d_libdir__libdmtcp_container_so_SOURCES) \
+	$(__d_libdir__libdmtcp_cgroup_so_SOURCES) \
 	$(__d_libdir__libdmtcp_modify_env_so_SOURCES) \
 	$(__d_libdir__libdmtcp_unique_ckpt_so_SOURCES)
 am__can_run_installinfo = \
@@ -497,15 +496,15 @@ __d_libdir__libdmtcp_unique_ckpt_so_SOURCES = \
 
 __d_libdir__libdmtcp_unique_ckpt_so_LDFLAGS = $(dmtcp_ldflags)
 __d_libdir__libdmtcp_unique_ckpt_so_LDADD = $(LDADD)
-__d_libdir__libdmtcp_container_so_SOURCES = \
-	container/container.cpp																					\
-	container/proccgroup.cpp																				\
-	container/proccgroup.h																					\
-	container/procselfcgroup.cpp																		\
-	container/procselfcgroup.h
+__d_libdir__libdmtcp_cgroup_so_SOURCES = \
+	cgroup/cgroup.cpp																							\
+	cgroup/proccgroup.cpp																					\
+	cgroup/proccgroup.h																						\
+	cgroup/procselfcgroup.cpp																			\
+	cgroup/procselfcgroup.h
 
-__d_libdir__libdmtcp_container_so_LDFLAGS = $(dmtcp_ldflags)
-__d_libdir__libdmtcp_container_so_LDADD = $(LDADD)
+__d_libdir__libdmtcp_cgroup_so_LDFLAGS = $(dmtcp_ldflags)
+__d_libdir__libdmtcp_cgroup_so_LDADD = $(LDADD)
 all: all-am
 
 .SUFFIXES:
@@ -642,9 +641,9 @@ $(d_libdir)/libdmtcp_batch-queue.so$(EXEEXT): $(__d_libdir__libdmtcp_batch_queue
 	@rm -f $(d_libdir)/libdmtcp_batch-queue.so$(EXEEXT)
 	$(AM_V_CXXLD)$(__d_libdir__libdmtcp_batch_queue_so_LINK) $(__d_libdir__libdmtcp_batch_queue_so_OBJECTS) $(__d_libdir__libdmtcp_batch_queue_so_LDADD) $(LIBS)
 
-$(d_libdir)/libdmtcp_container.so$(EXEEXT): $(__d_libdir__libdmtcp_container_so_OBJECTS) $(__d_libdir__libdmtcp_container_so_DEPENDENCIES) $(EXTRA___d_libdir__libdmtcp_container_so_DEPENDENCIES) $(d_libdir)/$(am__dirstamp)
-	@rm -f $(d_libdir)/libdmtcp_container.so$(EXEEXT)
-	$(AM_V_CXXLD)$(__d_libdir__libdmtcp_container_so_LINK) $(__d_libdir__libdmtcp_container_so_OBJECTS) $(__d_libdir__libdmtcp_container_so_LDADD) $(LIBS)
+$(d_libdir)/libdmtcp_cgroup.so$(EXEEXT): $(__d_libdir__libdmtcp_cgroup_so_OBJECTS) $(__d_libdir__libdmtcp_cgroup_so_DEPENDENCIES) $(EXTRA___d_libdir__libdmtcp_cgroup_so_DEPENDENCIES) $(d_libdir)/$(am__dirstamp)
+	@rm -f $(d_libdir)/libdmtcp_cgroup.so$(EXEEXT)
+	$(AM_V_CXXLD)$(__d_libdir__libdmtcp_cgroup_so_LINK) $(__d_libdir__libdmtcp_cgroup_so_OBJECTS) $(__d_libdir__libdmtcp_cgroup_so_LDADD) $(LIBS)
 
 $(d_libdir)/libdmtcp_modify-env.so$(EXEEXT): $(__d_libdir__libdmtcp_modify_env_so_OBJECTS) $(__d_libdir__libdmtcp_modify_env_so_DEPENDENCIES) $(EXTRA___d_libdir__libdmtcp_modify_env_so_DEPENDENCIES) $(d_libdir)/$(am__dirstamp)
 	@rm -f $(d_libdir)/libdmtcp_modify-env.so$(EXEEXT)
@@ -730,7 +729,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/container.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cgroup.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/discover_dmtcpinput.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/discover_resources.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/discover_slurm.Po@am__quote@
@@ -959,47 +958,47 @@ rm_pmi.obj: batch-queue/rm_pmi.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o rm_pmi.obj `if test -f 'batch-queue/rm_pmi.cpp'; then $(CYGPATH_W) 'batch-queue/rm_pmi.cpp'; else $(CYGPATH_W) '$(srcdir)/batch-queue/rm_pmi.cpp'; fi`
 
-container.o: container/container.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT container.o -MD -MP -MF $(DEPDIR)/container.Tpo -c -o container.o `test -f 'container/container.cpp' || echo '$(srcdir)/'`container/container.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/container.Tpo $(DEPDIR)/container.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='container/container.cpp' object='container.o' libtool=no @AMDEPBACKSLASH@
+cgroup.o: cgroup/cgroup.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT cgroup.o -MD -MP -MF $(DEPDIR)/cgroup.Tpo -c -o cgroup.o `test -f 'cgroup/cgroup.cpp' || echo '$(srcdir)/'`cgroup/cgroup.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cgroup.Tpo $(DEPDIR)/cgroup.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/cgroup.cpp' object='cgroup.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o container.o `test -f 'container/container.cpp' || echo '$(srcdir)/'`container/container.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cgroup.o `test -f 'cgroup/cgroup.cpp' || echo '$(srcdir)/'`cgroup/cgroup.cpp
 
-container.obj: container/container.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT container.obj -MD -MP -MF $(DEPDIR)/container.Tpo -c -o container.obj `if test -f 'container/container.cpp'; then $(CYGPATH_W) 'container/container.cpp'; else $(CYGPATH_W) '$(srcdir)/container/container.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/container.Tpo $(DEPDIR)/container.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='container/container.cpp' object='container.obj' libtool=no @AMDEPBACKSLASH@
+cgroup.obj: cgroup/cgroup.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT cgroup.obj -MD -MP -MF $(DEPDIR)/cgroup.Tpo -c -o cgroup.obj `if test -f 'cgroup/cgroup.cpp'; then $(CYGPATH_W) 'cgroup/cgroup.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/cgroup.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cgroup.Tpo $(DEPDIR)/cgroup.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/cgroup.cpp' object='cgroup.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o container.obj `if test -f 'container/container.cpp'; then $(CYGPATH_W) 'container/container.cpp'; else $(CYGPATH_W) '$(srcdir)/container/container.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cgroup.obj `if test -f 'cgroup/cgroup.cpp'; then $(CYGPATH_W) 'cgroup/cgroup.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/cgroup.cpp'; fi`
 
-proccgroup.o: container/proccgroup.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT proccgroup.o -MD -MP -MF $(DEPDIR)/proccgroup.Tpo -c -o proccgroup.o `test -f 'container/proccgroup.cpp' || echo '$(srcdir)/'`container/proccgroup.cpp
+proccgroup.o: cgroup/proccgroup.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT proccgroup.o -MD -MP -MF $(DEPDIR)/proccgroup.Tpo -c -o proccgroup.o `test -f 'cgroup/proccgroup.cpp' || echo '$(srcdir)/'`cgroup/proccgroup.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/proccgroup.Tpo $(DEPDIR)/proccgroup.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='container/proccgroup.cpp' object='proccgroup.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/proccgroup.cpp' object='proccgroup.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o proccgroup.o `test -f 'container/proccgroup.cpp' || echo '$(srcdir)/'`container/proccgroup.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o proccgroup.o `test -f 'cgroup/proccgroup.cpp' || echo '$(srcdir)/'`cgroup/proccgroup.cpp
 
-proccgroup.obj: container/proccgroup.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT proccgroup.obj -MD -MP -MF $(DEPDIR)/proccgroup.Tpo -c -o proccgroup.obj `if test -f 'container/proccgroup.cpp'; then $(CYGPATH_W) 'container/proccgroup.cpp'; else $(CYGPATH_W) '$(srcdir)/container/proccgroup.cpp'; fi`
+proccgroup.obj: cgroup/proccgroup.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT proccgroup.obj -MD -MP -MF $(DEPDIR)/proccgroup.Tpo -c -o proccgroup.obj `if test -f 'cgroup/proccgroup.cpp'; then $(CYGPATH_W) 'cgroup/proccgroup.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/proccgroup.cpp'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/proccgroup.Tpo $(DEPDIR)/proccgroup.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='container/proccgroup.cpp' object='proccgroup.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/proccgroup.cpp' object='proccgroup.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o proccgroup.obj `if test -f 'container/proccgroup.cpp'; then $(CYGPATH_W) 'container/proccgroup.cpp'; else $(CYGPATH_W) '$(srcdir)/container/proccgroup.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o proccgroup.obj `if test -f 'cgroup/proccgroup.cpp'; then $(CYGPATH_W) 'cgroup/proccgroup.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/proccgroup.cpp'; fi`
 
-procselfcgroup.o: container/procselfcgroup.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT procselfcgroup.o -MD -MP -MF $(DEPDIR)/procselfcgroup.Tpo -c -o procselfcgroup.o `test -f 'container/procselfcgroup.cpp' || echo '$(srcdir)/'`container/procselfcgroup.cpp
+procselfcgroup.o: cgroup/procselfcgroup.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT procselfcgroup.o -MD -MP -MF $(DEPDIR)/procselfcgroup.Tpo -c -o procselfcgroup.o `test -f 'cgroup/procselfcgroup.cpp' || echo '$(srcdir)/'`cgroup/procselfcgroup.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/procselfcgroup.Tpo $(DEPDIR)/procselfcgroup.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='container/procselfcgroup.cpp' object='procselfcgroup.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/procselfcgroup.cpp' object='procselfcgroup.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o procselfcgroup.o `test -f 'container/procselfcgroup.cpp' || echo '$(srcdir)/'`container/procselfcgroup.cpp
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o procselfcgroup.o `test -f 'cgroup/procselfcgroup.cpp' || echo '$(srcdir)/'`cgroup/procselfcgroup.cpp
 
-procselfcgroup.obj: container/procselfcgroup.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT procselfcgroup.obj -MD -MP -MF $(DEPDIR)/procselfcgroup.Tpo -c -o procselfcgroup.obj `if test -f 'container/procselfcgroup.cpp'; then $(CYGPATH_W) 'container/procselfcgroup.cpp'; else $(CYGPATH_W) '$(srcdir)/container/procselfcgroup.cpp'; fi`
+procselfcgroup.obj: cgroup/procselfcgroup.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT procselfcgroup.obj -MD -MP -MF $(DEPDIR)/procselfcgroup.Tpo -c -o procselfcgroup.obj `if test -f 'cgroup/procselfcgroup.cpp'; then $(CYGPATH_W) 'cgroup/procselfcgroup.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/procselfcgroup.cpp'; fi`
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/procselfcgroup.Tpo $(DEPDIR)/procselfcgroup.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='container/procselfcgroup.cpp' object='procselfcgroup.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/procselfcgroup.cpp' object='procselfcgroup.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o procselfcgroup.obj `if test -f 'container/procselfcgroup.cpp'; then $(CYGPATH_W) 'container/procselfcgroup.cpp'; else $(CYGPATH_W) '$(srcdir)/container/procselfcgroup.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o procselfcgroup.obj `if test -f 'cgroup/procselfcgroup.cpp'; then $(CYGPATH_W) 'cgroup/procselfcgroup.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/procselfcgroup.cpp'; fi`
 
 warning.o: modify-env/warning.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT warning.o -MD -MP -MF $(DEPDIR)/warning.Tpo -c -o warning.o `test -f 'modify-env/warning.cpp' || echo '$(srcdir)/'`modify-env/warning.cpp

@@ -10,7 +10,7 @@
 #include "proccgroup.h"
 #include "procselfcgroup.h"
 
-#define CKPT_FILE "ckpt_container.dmtcp"
+#define CKPT_FILE "ckpt_cgroup.dmtcp"
 
 using namespace dmtcp;
 
@@ -65,10 +65,10 @@ restoreFromCkpt(int fd)
 }
 
 EXTERNC int
-dmtcp_container_enabled() { return 1; }
+dmtcp_cgroup_enabled() { return 1; }
 
 static void
-container_event_hook(DmtcpEvent_t event, DmtcpEventData_t *data)
+cgroupEventHook(DmtcpEvent_t event, DmtcpEventData_t *data)
 {
   switch (event) {
   case DMTCP_EVENT_INIT:
@@ -130,15 +130,15 @@ static DmtcpBarrier barriers[] = {
   { DMTCP_GLOBAL_BARRIER_RESTART, restart, "restart" }
 };
 
-DmtcpPluginDescriptor_t container_plugin = {
+DmtcpPluginDescriptor_t cgroupPlugin = {
   DMTCP_PLUGIN_API_VERSION,
   DMTCP_PACKAGE_VERSION,
-  "Container checkpointing (namespaces and cgroups)",
+  "Control Group checkpointing",
   "DMTCP",
   "dmtcp@ccs.neu.edu",
   "Example plugin",
   DMTCP_DECL_BARRIERS(barriers),
-  container_event_hook
+  cgroupEventHook
 };
 
-DMTCP_DECL_PLUGIN(container_plugin);
+DMTCP_DECL_PLUGIN(cgroupPlugin);
