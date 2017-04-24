@@ -59,7 +59,7 @@ CGroupWrapper::getHeader(CGroupHeader &hdr)
 void
 CGroupWrapper::createIfMissing()
 {
-  int mkRes = mkdir(path.c_str(), 755);
+  int mkRes = mkdir(path.c_str(), 0755);
   if (mkRes == -1) {
     JASSERT(errno == EEXIST) (JASSERT_ERRNO);
   }
@@ -107,7 +107,7 @@ CGroupWrapper::addPid(pid_t pid)
 {
   std::string procsPath = path + "/cgroup.procs";
   int fd = _real_open(procsPath.c_str(), O_WRONLY);
-  JASSERT(fd != -1) (JASSERT_ERRNO);
+  JASSERT(fd != -1) (JASSERT_ERRNO) (procsPath);
 
   char pidbuf[100];
   sprintf(pidbuf, "%d", pid);
