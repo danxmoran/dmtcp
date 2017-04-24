@@ -48,12 +48,12 @@ checkpoint()
 
   while ((group = procSelfCGroup.getNextCGroup())) {
     CGroupHeader grpHdr;
-    group->initCtrlFiles();
     group->getHeader(grpHdr);
     Util::writeAll(ckpt_fd, &grpHdr, sizeof(CGroupHeader));
 
     CtrlFileHeader hdr;
     void *fileBuf;
+    group->initCtrlFiles();
     while ((fileBuf = group->getNextCtrlFile(hdr))) {
       Util::writeAll(ckpt_fd, &hdr, sizeof(CtrlFileHeader));
       Util::writeAll(ckpt_fd, fileBuf, hdr.fileSize);

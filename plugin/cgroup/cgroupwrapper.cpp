@@ -76,14 +76,7 @@ CGroupWrapper::getNextCtrlFile(CtrlFileHeader &fileHdr)
   ssize_t numRead = 0;
 
   int fd = _real_open((path + "/" + *ctrlFileIterator).c_str(), O_RDONLY);
-  if (fd == -1) {
-    if (errno == ENOENT) {
-      ctrlFileIterator++;
-      return getNextCtrlFile(fileHdr);
-    } else {
-      JASSERT(fd != -1) (JASSERT_ERRNO) (*ctrlFileIterator);
-    }
-  }
+  JASSERT(fd != -1) (JASSERT_ERRNO) (*ctrlFileIterator);
 
   strcpy(fileHdr.name, (*ctrlFileIterator).c_str());
   fileHdr.fileSize = 0;
