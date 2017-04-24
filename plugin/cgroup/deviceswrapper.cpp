@@ -6,9 +6,10 @@ using namespace dmtcp;
 DevicesWrapper::DevicesWrapper(std::string name)
   : CGroupWrapper("devices", name)
 {
-  // TODO: the devices subgroup has 2 writeable files and 1 read-only file
-  // which summarizes the writes to the other 2. We should copy the read-only
-  // file and then dump to the write-only files.
+  // TODO the devices subsystem requires CAP_SYS_ADMIN to modify any parameters,
+  // even if the virtual files are owned by a non-root user.
+  // DMTCP currently shies away from running as root, so it can't do anything
+  // useful for this subsystem other than restore the name.
   numCtrlFiles = 0;
   ctrlFilePaths = pathList();
 }
