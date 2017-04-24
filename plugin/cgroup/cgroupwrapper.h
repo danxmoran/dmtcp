@@ -1,7 +1,9 @@
 #ifndef CGroupWrapper_H
 #define CGroupWrapper_H
 
+#include <fcntl.h>
 #include <sys/types.h>
+#include <vector>
 
 #include "dmtcp.h"
 #include "jalloc.h"
@@ -38,23 +40,25 @@ class CGroupWrapper
     static void operator delete(void *p) { JALLOC_HELPER_DELETE(p); }
 #endif // ifdef JALIB_ALLOCATOR
 
-    CGroupWrapper(std::string subsystem, std::string name);
-    CGroupWrapper(CGroupHeader &groupHdr);
-    ~CGroupWrapper();
+    static CGroupWrapper *build(std::string subsystem, std::string name);
+    static CGroupWrapper *build(CGroupHeader &groupHdr);
 
     void getHeader(CGroupHeader &groupHdr);
-    void createIfNotExist();
-    void initCtrlFiles();
+    void createIfMissing();
     void *getNextCtrlFile(CtrlFileHeader &fileHdr);
-    void writeCtrlFile(CtrlFileHeader &fileHdr, void *contentBuf);
     void addPid(pid_t pid);
+    void initCtrlFiles();
 
-  private:
+    virtual void writeCtrlFile(CtrlFileHeader &fileHdr, void *contentBuf);
+
+  protected:
+    CGroupWrapper(std::string subsystem, std::string name);
+
     std::string subsystem;
     std::string name;
     std::string path;
-    size_t numFiles;
     pathList ctrlFilePaths;
+    size_t numCtrlFiles;
     pathList::iterator ctrlFileIterator;
 };
 }

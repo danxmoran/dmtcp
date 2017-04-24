@@ -123,8 +123,8 @@ ProcSelfCGroup::getNextCGroup()
     return NULL;
   }
 
-  CGroupWrapper *group = new CGroupWrapper(groupIterator->first,
-                                           *groupNameIterator);
+  CGroupWrapper *group = CGroupWrapper::build(groupIterator->first,
+                                              *groupNameIterator);
 
   groupNameIterator++;
   if (groupNameIterator == groupIterator->second.end()) {

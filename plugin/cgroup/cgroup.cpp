@@ -84,8 +84,8 @@ restart()
     readResult = _real_read(fd, &groupHeader, sizeof(CGroupHeader));
     JASSERT(readResult > 0) (JASSERT_ERRNO);
 
-    CGroupWrapper *group = new CGroupWrapper(groupHeader);
-    group->createIfNotExist();
+    CGroupWrapper *group = CGroupWrapper::build(groupHeader);
+    group->createIfMissing();
 
     size_t fileCount = groupHeader.numFiles;
     for (size_t j = 0; j < fileCount; j++) {

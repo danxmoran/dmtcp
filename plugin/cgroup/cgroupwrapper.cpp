@@ -1,36 +1,51 @@
-#include <dirent.h>
-#include <fcntl.h>
 #include <jassert.h>
 #include <util.h>
 #include <sys/stat.h>
 #include <string>
 
 #include "cgroupwrapper.h"
+#include "wrappers.h"
 
 using namespace dmtcp;
 
 
+CGroupWrapper *
+CGroupWrapper::build(std::string subsystem, std::string name)
+{
+  if (subsystem == "cpuset") {
+    return new CpuSetWrapper(name);
+  } else if (subsystem == "cpu") {
+    return new CpuWrapper(name);
+  } else if (subsystem == "blkio") {
+    return new BlkIOWrapper(name);
+  } else if (subsystem == "memory") {
+    return new MemoryWrapper(name);
+  } else if (subsystem == "devices") {
+    return new DevicesWrapper(name);
+  } else if (subsystem == "net_cls") {
+    return new NetClsWrapper(name);
+  } else if (subsystem == "net_prio") {
+    return new NetPrioWrapper(name);
+  } else if (subsystem == "hugetlb") {
+    return new HugeTLBWrapper(name);
+  } else if (subsystem == "pids") {
+    return new PidsWrapper(name);
+  } else {
+    return new NoCtrlFilesWrapper(subsystem, name);
+  }
+}
+
+CGroupWrapper *
+CGroupWrapper::build(CGroupHeader &groupHdr)
+{
+  return build(std::string(groupHdr.subsystem), std::string(groupHdr.name));
+}
+
 CGroupWrapper::CGroupWrapper(std::string subsystem, std::string name)
   : subsystem(subsystem),
-  name(name),
-  numFiles(0),
-  ctrlFilePaths(pathList())
+  name(name)
 {
   path = CGROUP_PREFIX + subsystem + name;
-}
-
-CGroupWrapper::CGroupWrapper(CGroupHeader &groupHdr)
-  : numFiles(0),
-  ctrlFilePaths(pathList())
-{
-  name = std::string(groupHdr.name);
-  subsystem = std::string(groupHdr.subsystem);
-  path = CGROUP_PREFIX + subsystem + name;
-}
-
-CGroupWrapper::~CGroupWrapper()
-{
-  numFiles = 0;
 }
 
 void
@@ -38,11 +53,11 @@ CGroupWrapper::getHeader(CGroupHeader &hdr)
 {
   strcpy(hdr.name, name.c_str());
   strcpy(hdr.subsystem, subsystem.c_str());
-  hdr.numFiles = numFiles;
+  hdr.numFiles = numCtrlFiles;
 }
 
 void
-CGroupWrapper::createIfNotExist()
+CGroupWrapper::createIfMissing()
 {
   int mkRes = mkdir(path.c_str(), 755);
   if (mkRes == -1) {
@@ -50,51 +65,28 @@ CGroupWrapper::createIfNotExist()
   }
 }
 
-void
-CGroupWrapper::initCtrlFiles()
-{
-  DIR *dir = opendir(path.c_str());
-  JASSERT(dir != NULL) (path);
-
-  struct dirent *ent;
-  while ((ent = readdir(dir)) != NULL) {
-    std::string entName = std::string(ent->d_name);
-    // Only try to dump control files for the current subsystem.
-    if (entName.find(subsystem) == 0) {
-      // TODO(dan): How can we capture special cases like this?
-      if (entName == "memory.oom_control") continue;
-
-      std::string entPath = path + "/" + std::string(ent->d_name);
-      struct stat fStat;
-      // Only dump files with read-write access.
-      int statRes = stat(entPath.c_str(), &fStat);
-      JASSERT(statRes != -1) (JASSERT_ERRNO);
-      if ((fStat.st_mode & S_IRUSR) && (fStat.st_mode & S_IWUSR)) {
-        ctrlFilePaths.push_back(entPath);
-      }
-    }
-  }
-
-  closedir(dir);
-  numFiles = ctrlFilePaths.size();
-  ctrlFileIterator = ctrlFilePaths.begin();
-}
-
 void *
 CGroupWrapper::getNextCtrlFile(CtrlFileHeader &fileHdr)
 {
-  if (numFiles == 0 || ctrlFileIterator == ctrlFilePaths.end()) {
+  if (numCtrlFiles == 0 || ctrlFileIterator == ctrlFilePaths.end()) {
     return NULL;
   }
 
   char buf[4096];
   ssize_t numRead = 0;
 
+  int fd = _real_open((path + "/" + *ctrlFileIterator).c_str(), O_RDONLY);
+  if (fd == -1) {
+    if (errno == ENOENT) {
+      ctrlFileIterator++;
+      return getNextCtrlFile(fileHdr);
+    } else {
+      JASSERT(fd != -1) (JASSERT_ERRNO) (*ctrlFileIterator);
+    }
+  }
+
   strcpy(fileHdr.name, (*ctrlFileIterator).c_str());
   fileHdr.fileSize = 0;
-
-  int fd = _real_open(fileHdr.name, O_RDONLY);
-  JASSERT(fd != -1) (JASSERT_ERRNO);
 
   do {
     numRead = Util::readAll(fd, buf, sizeof(buf));
@@ -118,17 +110,6 @@ CGroupWrapper::getNextCtrlFile(CtrlFileHeader &fileHdr)
 }
 
 void
-CGroupWrapper::writeCtrlFile(CtrlFileHeader &fileHdr, void *contentBuf)
-{
-  int fd = _real_open(fileHdr.name, O_CREAT | O_TRUNC | O_WRONLY);
-  JASSERT(fd != -1) (JASSERT_ERRNO);
-
-  int writeRes = _real_write(fd, contentBuf, fileHdr.fileSize);
-  _real_close(fd);
-  JASSERT(writeRes != -1) (JASSERT_ERRNO) (fileHdr.name);
-}
-
-void
 CGroupWrapper::addPid(pid_t pid)
 {
   std::string procsPath = path + "/cgroup.procs";
@@ -140,4 +121,23 @@ CGroupWrapper::addPid(pid_t pid)
   int writeRes = _real_write(fd, pidbuf, strlen(pidbuf));
   _real_close(fd);
   JASSERT(writeRes != -1) (JASSERT_ERRNO);
+}
+
+void
+CGroupWrapper::initCtrlFiles()
+{
+  ctrlFileIterator = ctrlFilePaths.begin();
+}
+
+void
+CGroupWrapper::writeCtrlFile(CtrlFileHeader &fileHdr, void *contentBuf)
+{
+  std::string basename = std::string(fileHdr.name);
+  JASSERT(basename.find(subsystem) == 0) (fileHdr.name);
+  int fd = _real_open((path + "/" + basename).c_str(), O_WRONLY);
+  JASSERT(fd != -1) (JASSERT_ERRNO);
+
+  int writeRes = _real_write(fd, contentBuf, fileHdr.fileSize);
+  _real_close(fd);
+  JASSERT(writeRes != -1) (JASSERT_ERRNO) (fileHdr.name);
 }

@@ -131,7 +131,18 @@ __d_libdir__libdmtcp_cgroup_so_SOURCES =												\
 	cgroup/cgroupwrapper.cpp																			\
 	cgroup/cgroupwrapper.h																				\
 	cgroup/procselfcgroup.cpp																			\
-	cgroup/procselfcgroup.h
+	cgroup/procselfcgroup.h																				\
+	cgroup/cpusetwrapper.cpp 																			\
+	cgroup/cpuwrapper.cpp 																				\
+	cgroup/blkiowrapper.cpp 																			\
+	cgroup/deviceswrapper.cpp 																		\
+	cgroup/hugetlbwrapper.cpp 																		\
+	cgroup/memorywrapper.cpp 																			\
+	cgroup/netclswrapper.cpp 																			\
+	cgroup/netpriowrapper.cpp 																		\
+	cgroup/noctrlfileswrapper.cpp 																\
+	cgroup/pidswrapper.cpp 																				\
+	cgroup/wrappers.h
 __d_libdir__libdmtcp_cgroup_so_LDFLAGS = $(dmtcp_ldflags)
 __d_libdir__libdmtcp_cgroup_so_LDADD = $(LDADD)
 

@@ -146,7 +146,12 @@ __d_libdir__libdmtcp_batch_queue_so_LINK = $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(__d_libdir__libdmtcp_batch_queue_so_LDFLAGS) \
 	$(LDFLAGS) -o $@
 am___d_libdir__libdmtcp_cgroup_so_OBJECTS = cgroup.$(OBJEXT) \
-	cgroupwrapper.$(OBJEXT) procselfcgroup.$(OBJEXT)
+	cgroupwrapper.$(OBJEXT) procselfcgroup.$(OBJEXT) \
+	cpusetwrapper.$(OBJEXT) cpuwrapper.$(OBJEXT) \
+	blkiowrapper.$(OBJEXT) deviceswrapper.$(OBJEXT) \
+	hugetlbwrapper.$(OBJEXT) memorywrapper.$(OBJEXT) \
+	netclswrapper.$(OBJEXT) netpriowrapper.$(OBJEXT) \
+	noctrlfileswrapper.$(OBJEXT) pidswrapper.$(OBJEXT)
 __d_libdir__libdmtcp_cgroup_so_OBJECTS =  \
 	$(am___d_libdir__libdmtcp_cgroup_so_OBJECTS)
 __d_libdir__libdmtcp_cgroup_so_DEPENDENCIES = $(am__DEPENDENCIES_1)
@@ -501,7 +506,18 @@ __d_libdir__libdmtcp_cgroup_so_SOURCES = \
 	cgroup/cgroupwrapper.cpp																			\
 	cgroup/cgroupwrapper.h																				\
 	cgroup/procselfcgroup.cpp																			\
-	cgroup/procselfcgroup.h
+	cgroup/procselfcgroup.h																				\
+	cgroup/cpusetwrapper.cpp 																			\
+	cgroup/cpuwrapper.cpp 																				\
+	cgroup/blkiowrapper.cpp 																			\
+	cgroup/deviceswrapper.cpp 																		\
+	cgroup/hugetlbwrapper.cpp 																		\
+	cgroup/memorywrapper.cpp 																			\
+	cgroup/netclswrapper.cpp 																			\
+	cgroup/netpriowrapper.cpp 																		\
+	cgroup/noctrlfileswrapper.cpp 																\
+	cgroup/pidswrapper.cpp 																				\
+	cgroup/wrappers.h
 
 __d_libdir__libdmtcp_cgroup_so_LDFLAGS = $(dmtcp_ldflags)
 __d_libdir__libdmtcp_cgroup_so_LDADD = $(LDADD)
@@ -729,15 +745,25 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blkiowrapper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cgroup.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cgroupwrapper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpusetwrapper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpuwrapper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deviceswrapper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/discover_dmtcpinput.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/discover_resources.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/discover_slurm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/discover_torque.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dmtcp_discover_rm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dmtcp_srun_helper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hugetlbwrapper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memorywrapper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/modify-env.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/netclswrapper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/netpriowrapper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/noctrlfileswrapper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/pidswrapper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/procselfcgroup.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rm_main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/rm_pmi.Po@am__quote@
@@ -999,6 +1025,146 @@ procselfcgroup.obj: cgroup/procselfcgroup.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/procselfcgroup.cpp' object='procselfcgroup.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o procselfcgroup.obj `if test -f 'cgroup/procselfcgroup.cpp'; then $(CYGPATH_W) 'cgroup/procselfcgroup.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/procselfcgroup.cpp'; fi`
+
+cpusetwrapper.o: cgroup/cpusetwrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT cpusetwrapper.o -MD -MP -MF $(DEPDIR)/cpusetwrapper.Tpo -c -o cpusetwrapper.o `test -f 'cgroup/cpusetwrapper.cpp' || echo '$(srcdir)/'`cgroup/cpusetwrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cpusetwrapper.Tpo $(DEPDIR)/cpusetwrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/cpusetwrapper.cpp' object='cpusetwrapper.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cpusetwrapper.o `test -f 'cgroup/cpusetwrapper.cpp' || echo '$(srcdir)/'`cgroup/cpusetwrapper.cpp
+
+cpusetwrapper.obj: cgroup/cpusetwrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT cpusetwrapper.obj -MD -MP -MF $(DEPDIR)/cpusetwrapper.Tpo -c -o cpusetwrapper.obj `if test -f 'cgroup/cpusetwrapper.cpp'; then $(CYGPATH_W) 'cgroup/cpusetwrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/cpusetwrapper.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cpusetwrapper.Tpo $(DEPDIR)/cpusetwrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/cpusetwrapper.cpp' object='cpusetwrapper.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cpusetwrapper.obj `if test -f 'cgroup/cpusetwrapper.cpp'; then $(CYGPATH_W) 'cgroup/cpusetwrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/cpusetwrapper.cpp'; fi`
+
+cpuwrapper.o: cgroup/cpuwrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT cpuwrapper.o -MD -MP -MF $(DEPDIR)/cpuwrapper.Tpo -c -o cpuwrapper.o `test -f 'cgroup/cpuwrapper.cpp' || echo '$(srcdir)/'`cgroup/cpuwrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cpuwrapper.Tpo $(DEPDIR)/cpuwrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/cpuwrapper.cpp' object='cpuwrapper.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cpuwrapper.o `test -f 'cgroup/cpuwrapper.cpp' || echo '$(srcdir)/'`cgroup/cpuwrapper.cpp
+
+cpuwrapper.obj: cgroup/cpuwrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT cpuwrapper.obj -MD -MP -MF $(DEPDIR)/cpuwrapper.Tpo -c -o cpuwrapper.obj `if test -f 'cgroup/cpuwrapper.cpp'; then $(CYGPATH_W) 'cgroup/cpuwrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/cpuwrapper.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/cpuwrapper.Tpo $(DEPDIR)/cpuwrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/cpuwrapper.cpp' object='cpuwrapper.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o cpuwrapper.obj `if test -f 'cgroup/cpuwrapper.cpp'; then $(CYGPATH_W) 'cgroup/cpuwrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/cpuwrapper.cpp'; fi`
+
+blkiowrapper.o: cgroup/blkiowrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT blkiowrapper.o -MD -MP -MF $(DEPDIR)/blkiowrapper.Tpo -c -o blkiowrapper.o `test -f 'cgroup/blkiowrapper.cpp' || echo '$(srcdir)/'`cgroup/blkiowrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/blkiowrapper.Tpo $(DEPDIR)/blkiowrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/blkiowrapper.cpp' object='blkiowrapper.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o blkiowrapper.o `test -f 'cgroup/blkiowrapper.cpp' || echo '$(srcdir)/'`cgroup/blkiowrapper.cpp
+
+blkiowrapper.obj: cgroup/blkiowrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT blkiowrapper.obj -MD -MP -MF $(DEPDIR)/blkiowrapper.Tpo -c -o blkiowrapper.obj `if test -f 'cgroup/blkiowrapper.cpp'; then $(CYGPATH_W) 'cgroup/blkiowrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/blkiowrapper.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/blkiowrapper.Tpo $(DEPDIR)/blkiowrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/blkiowrapper.cpp' object='blkiowrapper.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o blkiowrapper.obj `if test -f 'cgroup/blkiowrapper.cpp'; then $(CYGPATH_W) 'cgroup/blkiowrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/blkiowrapper.cpp'; fi`
+
+deviceswrapper.o: cgroup/deviceswrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT deviceswrapper.o -MD -MP -MF $(DEPDIR)/deviceswrapper.Tpo -c -o deviceswrapper.o `test -f 'cgroup/deviceswrapper.cpp' || echo '$(srcdir)/'`cgroup/deviceswrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/deviceswrapper.Tpo $(DEPDIR)/deviceswrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/deviceswrapper.cpp' object='deviceswrapper.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o deviceswrapper.o `test -f 'cgroup/deviceswrapper.cpp' || echo '$(srcdir)/'`cgroup/deviceswrapper.cpp
+
+deviceswrapper.obj: cgroup/deviceswrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT deviceswrapper.obj -MD -MP -MF $(DEPDIR)/deviceswrapper.Tpo -c -o deviceswrapper.obj `if test -f 'cgroup/deviceswrapper.cpp'; then $(CYGPATH_W) 'cgroup/deviceswrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/deviceswrapper.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/deviceswrapper.Tpo $(DEPDIR)/deviceswrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/deviceswrapper.cpp' object='deviceswrapper.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o deviceswrapper.obj `if test -f 'cgroup/deviceswrapper.cpp'; then $(CYGPATH_W) 'cgroup/deviceswrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/deviceswrapper.cpp'; fi`
+
+hugetlbwrapper.o: cgroup/hugetlbwrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT hugetlbwrapper.o -MD -MP -MF $(DEPDIR)/hugetlbwrapper.Tpo -c -o hugetlbwrapper.o `test -f 'cgroup/hugetlbwrapper.cpp' || echo '$(srcdir)/'`cgroup/hugetlbwrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/hugetlbwrapper.Tpo $(DEPDIR)/hugetlbwrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/hugetlbwrapper.cpp' object='hugetlbwrapper.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o hugetlbwrapper.o `test -f 'cgroup/hugetlbwrapper.cpp' || echo '$(srcdir)/'`cgroup/hugetlbwrapper.cpp
+
+hugetlbwrapper.obj: cgroup/hugetlbwrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT hugetlbwrapper.obj -MD -MP -MF $(DEPDIR)/hugetlbwrapper.Tpo -c -o hugetlbwrapper.obj `if test -f 'cgroup/hugetlbwrapper.cpp'; then $(CYGPATH_W) 'cgroup/hugetlbwrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/hugetlbwrapper.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/hugetlbwrapper.Tpo $(DEPDIR)/hugetlbwrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/hugetlbwrapper.cpp' object='hugetlbwrapper.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o hugetlbwrapper.obj `if test -f 'cgroup/hugetlbwrapper.cpp'; then $(CYGPATH_W) 'cgroup/hugetlbwrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/hugetlbwrapper.cpp'; fi`
+
+memorywrapper.o: cgroup/memorywrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT memorywrapper.o -MD -MP -MF $(DEPDIR)/memorywrapper.Tpo -c -o memorywrapper.o `test -f 'cgroup/memorywrapper.cpp' || echo '$(srcdir)/'`cgroup/memorywrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/memorywrapper.Tpo $(DEPDIR)/memorywrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/memorywrapper.cpp' object='memorywrapper.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o memorywrapper.o `test -f 'cgroup/memorywrapper.cpp' || echo '$(srcdir)/'`cgroup/memorywrapper.cpp
+
+memorywrapper.obj: cgroup/memorywrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT memorywrapper.obj -MD -MP -MF $(DEPDIR)/memorywrapper.Tpo -c -o memorywrapper.obj `if test -f 'cgroup/memorywrapper.cpp'; then $(CYGPATH_W) 'cgroup/memorywrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/memorywrapper.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/memorywrapper.Tpo $(DEPDIR)/memorywrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/memorywrapper.cpp' object='memorywrapper.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o memorywrapper.obj `if test -f 'cgroup/memorywrapper.cpp'; then $(CYGPATH_W) 'cgroup/memorywrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/memorywrapper.cpp'; fi`
+
+netclswrapper.o: cgroup/netclswrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT netclswrapper.o -MD -MP -MF $(DEPDIR)/netclswrapper.Tpo -c -o netclswrapper.o `test -f 'cgroup/netclswrapper.cpp' || echo '$(srcdir)/'`cgroup/netclswrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/netclswrapper.Tpo $(DEPDIR)/netclswrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/netclswrapper.cpp' object='netclswrapper.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o netclswrapper.o `test -f 'cgroup/netclswrapper.cpp' || echo '$(srcdir)/'`cgroup/netclswrapper.cpp
+
+netclswrapper.obj: cgroup/netclswrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT netclswrapper.obj -MD -MP -MF $(DEPDIR)/netclswrapper.Tpo -c -o netclswrapper.obj `if test -f 'cgroup/netclswrapper.cpp'; then $(CYGPATH_W) 'cgroup/netclswrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/netclswrapper.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/netclswrapper.Tpo $(DEPDIR)/netclswrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/netclswrapper.cpp' object='netclswrapper.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o netclswrapper.obj `if test -f 'cgroup/netclswrapper.cpp'; then $(CYGPATH_W) 'cgroup/netclswrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/netclswrapper.cpp'; fi`
+
+netpriowrapper.o: cgroup/netpriowrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT netpriowrapper.o -MD -MP -MF $(DEPDIR)/netpriowrapper.Tpo -c -o netpriowrapper.o `test -f 'cgroup/netpriowrapper.cpp' || echo '$(srcdir)/'`cgroup/netpriowrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/netpriowrapper.Tpo $(DEPDIR)/netpriowrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/netpriowrapper.cpp' object='netpriowrapper.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o netpriowrapper.o `test -f 'cgroup/netpriowrapper.cpp' || echo '$(srcdir)/'`cgroup/netpriowrapper.cpp
+
+netpriowrapper.obj: cgroup/netpriowrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT netpriowrapper.obj -MD -MP -MF $(DEPDIR)/netpriowrapper.Tpo -c -o netpriowrapper.obj `if test -f 'cgroup/netpriowrapper.cpp'; then $(CYGPATH_W) 'cgroup/netpriowrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/netpriowrapper.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/netpriowrapper.Tpo $(DEPDIR)/netpriowrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/netpriowrapper.cpp' object='netpriowrapper.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o netpriowrapper.obj `if test -f 'cgroup/netpriowrapper.cpp'; then $(CYGPATH_W) 'cgroup/netpriowrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/netpriowrapper.cpp'; fi`
+
+noctrlfileswrapper.o: cgroup/noctrlfileswrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT noctrlfileswrapper.o -MD -MP -MF $(DEPDIR)/noctrlfileswrapper.Tpo -c -o noctrlfileswrapper.o `test -f 'cgroup/noctrlfileswrapper.cpp' || echo '$(srcdir)/'`cgroup/noctrlfileswrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/noctrlfileswrapper.Tpo $(DEPDIR)/noctrlfileswrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/noctrlfileswrapper.cpp' object='noctrlfileswrapper.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o noctrlfileswrapper.o `test -f 'cgroup/noctrlfileswrapper.cpp' || echo '$(srcdir)/'`cgroup/noctrlfileswrapper.cpp
+
+noctrlfileswrapper.obj: cgroup/noctrlfileswrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT noctrlfileswrapper.obj -MD -MP -MF $(DEPDIR)/noctrlfileswrapper.Tpo -c -o noctrlfileswrapper.obj `if test -f 'cgroup/noctrlfileswrapper.cpp'; then $(CYGPATH_W) 'cgroup/noctrlfileswrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/noctrlfileswrapper.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/noctrlfileswrapper.Tpo $(DEPDIR)/noctrlfileswrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/noctrlfileswrapper.cpp' object='noctrlfileswrapper.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o noctrlfileswrapper.obj `if test -f 'cgroup/noctrlfileswrapper.cpp'; then $(CYGPATH_W) 'cgroup/noctrlfileswrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/noctrlfileswrapper.cpp'; fi`
+
+pidswrapper.o: cgroup/pidswrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pidswrapper.o -MD -MP -MF $(DEPDIR)/pidswrapper.Tpo -c -o pidswrapper.o `test -f 'cgroup/pidswrapper.cpp' || echo '$(srcdir)/'`cgroup/pidswrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pidswrapper.Tpo $(DEPDIR)/pidswrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/pidswrapper.cpp' object='pidswrapper.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pidswrapper.o `test -f 'cgroup/pidswrapper.cpp' || echo '$(srcdir)/'`cgroup/pidswrapper.cpp
+
+pidswrapper.obj: cgroup/pidswrapper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT pidswrapper.obj -MD -MP -MF $(DEPDIR)/pidswrapper.Tpo -c -o pidswrapper.obj `if test -f 'cgroup/pidswrapper.cpp'; then $(CYGPATH_W) 'cgroup/pidswrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/pidswrapper.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/pidswrapper.Tpo $(DEPDIR)/pidswrapper.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='cgroup/pidswrapper.cpp' object='pidswrapper.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o pidswrapper.obj `if test -f 'cgroup/pidswrapper.cpp'; then $(CYGPATH_W) 'cgroup/pidswrapper.cpp'; else $(CYGPATH_W) '$(srcdir)/cgroup/pidswrapper.cpp'; fi`
 
 warning.o: modify-env/warning.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT warning.o -MD -MP -MF $(DEPDIR)/warning.Tpo -c -o warning.o `test -f 'modify-env/warning.cpp' || echo '$(srcdir)/'`modify-env/warning.cpp
