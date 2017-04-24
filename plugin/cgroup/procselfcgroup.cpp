@@ -3,7 +3,7 @@
 #include <util.h>
 #include <string>
 
-#include "proccgroup.h"
+#include "cgroupwrapper.h"
 #include "procselfcgroup.h"
 
 using namespace dmtcp;
@@ -116,14 +116,15 @@ ProcSelfCGroup::getNumCGroups()
   return numGroups;
 }
 
-ProcCGroup *
+CGroupWrapper *
 ProcSelfCGroup::getNextCGroup()
 {
   if (groupIterator == groupsBySubsystem.end()) {
     return NULL;
   }
 
-  ProcCGroup *group = new ProcCGroup(groupIterator->first, *groupNameIterator);
+  CGroupWrapper *group = CGroupWrapper::build(groupIterator->first,
+                                              *groupNameIterator);
 
   groupNameIterator++;
   if (groupNameIterator == groupIterator->second.end()) {

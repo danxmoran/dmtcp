@@ -6,7 +6,7 @@
 #include <string>
 
 #include "jalloc.h"
-#include "proccgroup.h"
+#include "cgroupwrapper.h"
 
 typedef std::vector<std::string> GroupNameList;
 typedef std::map<std::string, GroupNameList> GroupMap;
@@ -26,7 +26,7 @@ class ProcSelfCGroup
     ~ProcSelfCGroup();
 
     size_t getNumCGroups();
-    ProcCGroup *getNextCGroup();
+    CGroupWrapper *getNextCGroup();
 
   private:
     int parseGroupLine();

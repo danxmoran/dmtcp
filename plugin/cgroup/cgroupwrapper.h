@@ -1,7 +1,9 @@
-#ifndef PROCCGROUP_H
-#define PROCCGROUP_H
+#ifndef CGroupWrapper_H
+#define CGroupWrapper_H
 
+#include <fcntl.h>
 #include <sys/types.h>
+#include <vector>
 
 #include "dmtcp.h"
 #include "jalloc.h"
@@ -19,17 +21,17 @@ typedef struct CtrlFileHeader {
   size_t fileSize;
 } CtrlFileHeader;
 
-typedef struct ProcCGroupHeader {
+typedef struct CGroupHeader {
   char name[NAMESIZE];
   char subsystem[NAMESIZE];
   size_t numFiles;
-} ProcCGroupHeader;
+} CGroupHeader;
 
 typedef std::vector<std::string> pathList;
 
 namespace dmtcp
 {
-class ProcCGroup
+class CGroupWrapper
 {
   public:
 #ifdef JALIB_ALLOCATOR
@@ -38,25 +40,27 @@ class ProcCGroup
     static void operator delete(void *p) { JALLOC_HELPER_DELETE(p); }
 #endif // ifdef JALIB_ALLOCATOR
 
-    ProcCGroup(std::string subsystem, std::string name);
-    ProcCGroup(ProcCGroupHeader &groupHdr);
-    ~ProcCGroup();
+    static CGroupWrapper *build(std::string subsystem, std::string name);
+    static CGroupWrapper *build(CGroupHeader &groupHdr);
 
-    void getHeader(ProcCGroupHeader &groupHdr);
-    void createIfNotExist();
-    void initCtrlFiles();
+    void getHeader(CGroupHeader &groupHdr);
+    void createIfMissing();
     void *getNextCtrlFile(CtrlFileHeader &fileHdr);
-    void writeCtrlFile(CtrlFileHeader &fileHdr, void *contentBuf);
     void addPid(pid_t pid);
+    void initCtrlFiles();
 
-  private:
+    virtual void writeCtrlFile(CtrlFileHeader &fileHdr, void *contentBuf);
+
+  protected:
+    CGroupWrapper(std::string subsystem, std::string name);
+
     std::string subsystem;
     std::string name;
     std::string path;
-    size_t numFiles;
     pathList ctrlFilePaths;
+    size_t numCtrlFiles;
     pathList::iterator ctrlFileIterator;
 };
 }
 
-#endif // ifndef PROCCGROUP_H
+#endif // ifndef CGroupWrapper_H
