@@ -26,6 +26,7 @@ class MemoryWrapper : public CGroupWrapper
 {
   public:
     MemoryWrapper(std::string name);
+    virtual void writeCtrlFile(CtrlFileHeader &fileHdr, void *contentBuf);
 };
 class DevicesWrapper : public CGroupWrapper
 {
