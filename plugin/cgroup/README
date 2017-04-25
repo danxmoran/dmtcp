@@ -276,9 +276,3 @@ and integrate with the DMTCP coordinator process to avoid these problems.
 
 ## <a name="extensions"></a>Potential Extensions
 TODO
-
-### Fixing Permissions by Running DMTCP Within a Namespace
-TODO
-
-### Supporting More Containerization with Namespaces
-TODO
