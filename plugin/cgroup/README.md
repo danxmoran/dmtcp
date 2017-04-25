@@ -49,8 +49,8 @@ to extend / tune. This is done by `mount`ing the virtual filesystem of the subsy
 By convention, cgroups are typically mounted within `/sys/fs/cgroup`:
 
 ```bash
-> mkdir /sys/fs/cgroup/memory
-> mount -t cgroup -o memory /sys/fs/cgroup/memory
+$ mkdir /sys/fs/cgroup/memory
+$ mount -t cgroup -o memory /sys/fs/cgroup/memory
 ```
 
 Multiple cgroups can also be mounted into the same directory:
@@ -136,13 +136,13 @@ following subclasses:
   These wrappers capture all of the control files for their respective subsystems
   as hard-coded vectors.
 
-- [Block IO wrapper](blkiowrapper.cpp): Because of [permissions issues](#limitations),
+- [Block IO wrapper](blkiowrapper.cpp): Because of [permissions issues](#device-limitations),
   this wrapper only captures two of the eight possible tunable files within the
   blkio subsystem. If the limitations could be resolved, this wrapper could emit
   all eight filenames.
 
 - [Devices wrapper](deviceswrapper.cpp): Currently, this wrapper emits no file names
-  for checkpointing. This is because of [permissions limitations](#limitations), not
+  for checkpointing. This is because of [permissions limitations](#device-limitations), not
   because the devices subsystem is read-only. If the limitations could be resolved,
   this wrapper could emit device-related files to checkpoint.
 
@@ -260,7 +260,7 @@ we did not want to force DMTCP users to run restart scripts as root, and because
 a variety of other services for configuring cgroup access exist which would be much
 better suited for addressing cgroup access problems that would DMTCP.
 
-### Device and Block IO Limitations
+### <a name="device-limitations"></a>Device and Block IO Limitations
 Unfortunately, even if cgroup files are pre-configured to give write access to users running
 DMTCP restart scripts, our plugin is unable to restore parameters for the devices
 subsystem, as well as device-specific parameters for the blkio subsystem. Both of
