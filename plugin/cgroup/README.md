@@ -275,4 +275,32 @@ The plugin should parameterize its image names by the current DMTCP computation 
 and integrate with the DMTCP coordinator process to avoid these problems.
 
 ## <a name="extensions"></a>Potential Extensions
-TODO
+Given the stated assumptions and limitations of this plugin, this plugin is not
+realistically ready for widespread distribution with DMTCP. An obvious extension
+of this proof-of-concept would be to narrow the assumptions it makes and find a
+sane way around the device permissions issues it currently does not address, to
+make it more generally useful. A few ideas for addressing these points were mentioned
+in the sections above. Another possibility worth exploring would be to integrate
+this work with parallel development in running DMTCP within its own PID, mount,
+and user namespaces. Within these namespaces, the user running DMTCP should have
+full permissions to mount cgroup subsystems and tune device-related cgroup parameters.
+The checkpoint-restart process for cgroups could then confidently proceed knowing
+exactly where subsystems should be located and exactly which virtual files it should be
+allowed to read and write.
+
+Another possible extension to this plugin would be to add safety checks when restoring
+a cgroup that already exists. Currently, the plugin will blindly overwrite any
+parameters within the group to match the checkpointed information. This is the desired
+behavior when re-creating a group, but if the group already exists upon restart and
+contains different parameters from what was saved, overwriting the parameters could
+easily disrupt other processes running within the group. The plugin could be augmented
+to compare saved parameters to current parameters for existing groups and raise an
+error if it detects a mismatch. Alternatively, the plugin could always restore to a
+brand-new hierarchy, ensuring that restarting a process cannot interfere with the
+resources available to other independently-running processes.
+
+Lastly, cgroups are just one mechanism provided by Linux for containerization. A
+natural follow-up to this work would be to develop similar checkpoint-restart
+functionality for namespaces, another key container mechanism. While building
+this plugin, we began preliminary work on a [namespaces plugin](../ns), but were
+unable to make much progress. See the README of that plugin for additional details.
